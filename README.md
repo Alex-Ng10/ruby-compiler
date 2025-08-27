@@ -1,0 +1,1 @@
+The goal of this repository is to create a box, develop our skills and understanding of the programming lanaguage Ruby, and further improve our team working skills.
