@@ -1,6 +1,7 @@
 require_relative 'Translation'
+require_relative 'Evaluation'
 
-class Integer
+class IntegerPrimitive
     attr_reader :value
     def initialize(value)
         @value = value
@@ -11,7 +12,7 @@ class Integer
     end
 end
 
-class Add
+class AddOperation
     attr_reader :left, :right
     def initialize(left, right)
         @left = left
@@ -23,7 +24,7 @@ class Add
     end
 end
 
-class Subtract
+class SubtractOperation
     attr_reader :left, :right
     def initialize(left, right)
         @left = left
@@ -35,7 +36,7 @@ class Subtract
     end
 end
 
-class Multiply
+class MultiplyOperation
     attr_reader :left, :right
     def initialize(left, right)
         @left = left
@@ -47,7 +48,7 @@ class Multiply
     end
 end
 
-class Divide
+class DivideOperation
     attr_reader :left, :right
     def initialize(left, right)
         @left = left
@@ -59,7 +60,7 @@ class Divide
     end
 end
 
-class Modulo
+class ModuloOperation
     attr_reader :left, :right
     def initialize(left, right)
         @left = left
@@ -71,7 +72,7 @@ class Modulo
     end
 end
 
-class Exponent
+class ExponentOperation
     attr_reader :left, :right
     def initialize(left, right)
         @left = left
@@ -83,8 +84,8 @@ class Exponent
     end
 end
 
-class Negation
-    attr_reader: value
+class NegationOperation
+    attr_reader :value
     def initialize(value)
         @value = value
     end

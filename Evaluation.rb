@@ -1,33 +1,46 @@
 class Evaluator
     def visit_integer(node)
-        node
+        node.value
     end
 
     def visit_add(node)
-        node.left + node.right
+        left = node.left.visit(Evaluator.new)
+        right = node.right.visit(Evaluator.new)
+        left + right
     end
 
     def visit_sub(node)
-        node.left - node.right
+        left = node.left.visit(Evaluator.new)
+        right = node.right.visit(Evaluator.new)
+        left - right
     end
 
-    def visit_add(node)
-        node.left * node.right
+    def visit_mul(node)
+        left = node.left.visit(Evaluator.new)
+        right = node.right.visit(Evaluator.new)
+        left * right
     end
 
-    def visit_add(node)
-        node.left / node.right
+    def visit_div(node)
+        left = node.left.visit(Evaluator.new)
+        right = node.right.visit(Evaluator.new)
+        left / right
     end
 
-    def visit_add(node)
-        node.left % node.right
+    def visit_mod(node)
+        left = node.left.visit(Evaluator.new)
+        right = node.right.visit(Evaluator.new)
+        left % right
     end
 
-    def visit_add(node)
-        node.left ^ node.right
+    def visit_exp(node)
+        left = node.left.visit(Evaluator.new)
+        right = node.right.visit(Evaluator.new)
+        left ** right
     end
 
     def visit_neg(node)
-        !node
+        value = node.value.visit(Evaluator.new)
+        -value
     end
 end

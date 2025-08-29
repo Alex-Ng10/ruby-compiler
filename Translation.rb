@@ -1,6 +1,6 @@
 class Translator
     def visit_integer(node)
-        "#{node.visit(self)}"
+        "#{node.value}"
     end
 
     def visit_add(node)
@@ -24,10 +24,10 @@ class Translator
     end
 
     def visit_exp(node)
-        "#{node.left.visit(self)} ^ #{node.rightvisit(self)}"
+        "#{node.left.visit(self)} ^ #{node.right.visit(self)}"
     end
 
     def visit_neg(node)
-        "!#{node.visit(self)}}"
+        "-#{node.value.visit(self)}"
     end
 end
