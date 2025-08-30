@@ -3,6 +3,22 @@ class Evaluator
         node.value
     end
 
+    def visit_float(node)
+        node.value
+    end
+
+    def visit_boolean(node)
+        node.value
+    end
+
+    def visit_string(node)
+        node.value
+    end
+
+    def visit_null(node)
+        node.value
+    end
+
     def visit_add(node)
         left = node.left.visit(Evaluator.new)
         right = node.right.visit(Evaluator.new)
