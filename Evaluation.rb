@@ -20,45 +20,75 @@ class Evaluator
     end
 
     def visit_add(node)
-        left = node.left.visit(Evaluator.new)
+        left = node.left
         if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
             raise "Invalid type"
         end
-        right = node.right.visit(Evaluator.new)
+        right = node.right
         if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
             raise "Invalid type"
         end
-        left + right
+        left.visit(self) + right.visit(self)
     end
 
     def visit_sub(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left - right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) - right.visit(self)
     end
 
     def visit_mul(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left * right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) * right.visit(self)
     end
 
     def visit_div(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left / right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) / right.visit(self)
     end
 
     def visit_mod(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left % right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) % right.visit(self)
     end
 
     def visit_exp(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left ** right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) ** right.visit(self)
     end
 
     def visit_neg(node)
@@ -67,15 +97,27 @@ class Evaluator
     end
 
     def visit_and(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left && right
+        left = node.left
+        if (left.class != BooleanPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != BooleanPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) && right.visit(self)
     end
 
     def visit_or(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left || right
+        left = node.left
+        if (left.class != BooleanPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != BooleanPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) || right.visit(self)
     end
 
     def visit_not(node)
@@ -84,24 +126,39 @@ class Evaluator
     end
 
     def visit_bit_and(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new) 
-        # How do we have to put the if statement here
-        left & right
+        left = node.left
+        if (left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) & right.visit(self)
     end
 
     def visit_bit_or(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        # How do we have to put the if statement here
-        left | right
+        left = node.left
+        if (left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) | right.visit(self)
     end
 
     def visit_bit_xor(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        # How do we have to put the if statement here
-        left ^ right
+        left = node.left
+        if (left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) ^ right.visit(self)
     end
 
     def visit_bit_not(node)
@@ -111,54 +168,100 @@ class Evaluator
     end
 
     def visit_left_shift(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        # How do we have to put the if statement here
-        left << right
+        left = node.left
+        if (left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) << right.visit(self)
     end
 
     def visit_right_shift(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        # How do we have to put the if statement here
-        left >> right
+        left = node.left
+        if (left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) >> right.visit(self)
     end
 
     # Relational Operations
     def visit_equals(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left == right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) == right.visit(self)
     end
 
     def visit_not_equals(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left != right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) != right.visit(self)
     end
 
     def visit_less_than(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left < right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) < right.visit(self)
     end
 
     def visit_less_than_or_equal(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left <= right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) <= right.visit(self)
     end
 
     def visit_greater_than(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left > right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) > right.visit(self)
     end
 
     def visit_greater_than_or_equal(node)
-        left = node.left.visit(Evaluator.new)
-        right = node.right.visit(Evaluator.new)
-        left >= right
+        left = node.left
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        right = node.right
+        if (right.class != FloatPrimitive && right.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        left.visit(self) >= right.visit(self)
     end
 
 end

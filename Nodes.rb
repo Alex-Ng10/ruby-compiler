@@ -342,9 +342,9 @@ puts d.visit(Translator.new)
 puts d.visit(Evaluator.new)
 
 # Arithmetic Operations that were tested in a rotation
-# b = AddOperation.new(c, d)
-# puts b.visit(Translator.new)
-# puts b.visit(Evaluator.new)
+b = AddOperation.new(a, a)
+puts b.visit(Translator.new)
+puts b.visit(Evaluator.new)
 
 e = NullPrimitive.new
 puts e.visit(Translator.new)
