@@ -21,7 +21,7 @@ class Translator
 
     # Arithmetic Operations
     def visit_add(node)
-        "#{node.left.visit(self)} + #{node.right.visit(self)}"
+        "#{node.left.visit(self)} + #{node.right.visit(self)}" 
     end
 
     def visit_sub(node)
