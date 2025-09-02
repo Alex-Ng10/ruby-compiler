@@ -21,7 +21,7 @@ class Evaluator
 
     def visit_add(node)
         left = node.left
-        if (left.class != FloatPrimitive && left.class != IntegerPrimitive) 
+        if (left.class != FloatPrimitive && left.class != IntegerPrimitive)  # raise '+ expect fractions' if !left_primitive.is_a?(AST::FloatPrimitive)
             raise "Invalid type"
         end
         right = node.right
