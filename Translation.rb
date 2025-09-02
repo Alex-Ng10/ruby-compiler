@@ -18,7 +18,7 @@ class Translator
     def visit_null(node)
         "#{node.value}"
     end
- 
+ test
     # Arithmetic Operations
     def visit_add(node)
         "#{node.left.visit(self)} + #{node.right.visit(self)}" 
