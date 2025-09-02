@@ -91,9 +91,13 @@ class Evaluator
         left.visit(self) ** right.visit(self)
     end
 
+    # Test
     def visit_neg(node)
-        value = node.value.visit(Evaluator.new)
-        -value
+        value = node.value
+        if (value.class != FloatPrimitive && value.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        -value.visit(Evaluator.new)
     end
 
     def visit_and(node)
@@ -120,9 +124,13 @@ class Evaluator
         left.visit(self) || right.visit(self)
     end
 
+    # Test
     def visit_not(node)
-        value = node.value.visit(Evaluator.new)
-        !value
+        value = node.value
+        if (value.class != BooleanPrimitive) 
+            raise "Invalid type"
+        end
+        !value.visit(Evaluator.new)
     end
 
     def visit_bit_and(node)
@@ -161,10 +169,13 @@ class Evaluator
         left.visit(self) ^ right.visit(self)
     end
 
+    # Test
     def visit_bit_not(node)
-        value = node.value.visit(Evaluator.new)
-        # How do we have to put the if statement here
-        ~value
+        value = node.value
+        if (value.class != FloatPrimitive && value.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        ~value.visit(Evaluator.new)
     end
 
     def visit_left_shift(node)
@@ -262,6 +273,25 @@ class Evaluator
             raise "Invalid type"
         end
         left.visit(self) >= right.visit(self)
+    end
+
+    # Casting Operation
+    # Test
+    def visit_float_int(node)
+        value = node.value
+        if (value.class != FloatPrimitive && value.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        Integer(value.visit(Evaluator.new))
+    end
+
+    # Test
+    def visit_int_float(node)
+        value = node.value
+        if (value.class != FloatPrimitive && value.class != IntegerPrimitive) 
+            raise "Invalid type"
+        end
+        Float(value.visit(Evaluator.new))
     end
 
 end

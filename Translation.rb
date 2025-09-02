@@ -110,4 +110,13 @@ class Translator
     def visit_greater_than_or_equal(node)
         "#{node.left.visit(self)} >= #{node.right.visit(self)}"
     end
+
+    # Casting Operations
+    def visit_float_int(node)
+        "Integer(#{node.value.visit(self)})"
+    end
+
+    def visit_int_float(node)
+        "Float(#{node.value.visit(self)})"
+    end
 end

@@ -327,8 +327,29 @@ class GreaterThanOrEqualOperation
     end
 end
 
+# Casting Operations
 
+class FloatToInt
+    attr_reader :value
+    def initialize(value)
+        @value = value
+    end
 
+    def visit(visitor)
+        visitor.visit_float_int(self)
+    end
+end
+
+class IntToFloat
+    attr_reader :value
+    def initialize(value)
+        @value = value
+    end
+
+    def visit(visitor)
+        visitor.visit_int_float(self)
+    end
+end
 
 # Primitive Operations
 a = FloatPrimitive.new(8)
@@ -418,5 +439,16 @@ puts r5.visit(Evaluator.new)
 r6 = GreaterThanOrEqualOperation.new(x1, x2)
 puts r6.visit(Translator.new)
 puts r6.visit(Evaluator.new)
+
+# Casting Operations
+c1 = IntegerPrimitive.new(9)
+c2 = FloatPrimitive.new(4.5)
+
+c3 = FloatToInt.new(c2)
+puts c3.visit(Translator.new)
+puts c3.visit(Evaluator.new)
+c4 = IntToFloat.new(c1)
+puts c4.visit(Translator.new)
+puts c4.visit(Evaluator.new)
 
  
