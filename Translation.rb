@@ -1,4 +1,7 @@
 class Translator
+
+    # Primitives
+
     def visit_integer(node)
         "#{node.value}"
     end
@@ -18,50 +21,53 @@ class Translator
     def visit_null(node)
         "#{node.value}"
     end
- test here
+
     # Arithmetic Operations
-    def visit_add(node)
+
+    def visit_arithm_add(node)
         "#{node.left.visit(self)} + #{node.right.visit(self)}" 
     end
 
-    def visit_sub(node)
+    def visit_arithm_sub(node)
         "#{node.left.visit(self)} - #{node.right.visit(self)}"
     end
 
-    def visit_mul(node)
+    def visit_arithm_mul(node)
         "#{node.left.visit(self)} * #{node.right.visit(self)}"
     end
 
-    def visit_div(node)
+    def visit_arithm_div(node)
         "#{node.left.visit(self)} / #{node.right.visit(self)}"
     end
 
-    def visit_mod(node)
+    def visit_arithm_mod(node)
         "#{node.left.visit(self)} % #{node.right.visit(self)}"
     end
 
-    def visit_exp(node)
+    def visit_arithm_exp(node)
         "#{node.left.visit(self)} ^ #{node.right.visit(self)}"
     end
 
-    def visit_neg(node)
+    def visit_arithm_neg(node)
         "-#{node.value.visit(self)}"
     end
 
     # Logical Operations
-    def visit_and(node)
+
+    def visit_log_and(node)
         "#{node.left.visit(self)} && #{node.right.visit(self)}"
     end
 
-    def visit_or(node)
+    def visit_log_or(node)
         "#{node.left.visit(self)} || #{node.right.visit(self)}"
     end
 
-    def visit_not(node)
+    def visit_log_not(node)
         "!#{node.value.visit(self)}"
     end
 
     # Bitwise Operations
+
     def visit_bit_and(node)
         "#{node.left.visit(self)} & #{node.right.visit(self)}"
     end
@@ -87,6 +93,7 @@ class Translator
     end
 
     # Relational Operations
+
     def visit_equals(node)
         "#{node.left.visit(self)} == #{node.right.visit(self)}"
     end
@@ -112,6 +119,7 @@ class Translator
     end
 
     # Casting Operations
+
     def visit_float_int(node)
         "Integer(#{node.value.visit(self)})"
     end
