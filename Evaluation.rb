@@ -1,4 +1,13 @@
+class Runtime
+    attr_reader :variables
+    def initialize()
+        @variables = Hash.new
+    end
+end
+
 class Evaluator
+
+    runtime = Runtime.new
 
     # Primitives
 
@@ -205,13 +214,36 @@ class Evaluator
     def visit_float_int(node)
         value = node.value
         raise 'Invalid type for float to int' if (value.class != FloatPrimitive && value.class != IntegerPrimitive)
-        Integer(value.visit(Evaluator.new))
+        Integer(value.visit(self))
     end
 
     def visit_int_float(node)
         value = node.value
         raise 'Invalid type for int to float' if (value.class != FloatPrimitive && value.class != IntegerPrimitive)
-        Float(value.visit(Evaluator.new))
+        Float(value.visit(self))
+    end
+
+    # Other
+
+    def visit_var(node)
+        # value = node.value
+        # raise 'Unknown variable' if (value.class != Variable && runtime.key?(value))
+        # value.visit()
+    end
+
+    def visit_assign(node)
+        # left = node.left
+        # raise 'Invalid type for assignment' if (left.class != Variable)
+        # right = node.right
+        # left.visit(self) = right.visit(self)
+    end
+
+    def visit_print(node)
+        puts node.value.visit(self)
+    end
+
+    def visit_assign(node)
+
     end
 
 end

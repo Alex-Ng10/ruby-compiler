@@ -16,8 +16,7 @@ class Two
     end
 end
 
-class IntegerPrimitive
-    attr_reader :value
+class IntegerPrimitive < One
     def initialize(value)
         @value = Integer(value)
     end
@@ -27,8 +26,7 @@ class IntegerPrimitive
     end
 end
 
-class FloatPrimitive
-    attr_reader :value
+class FloatPrimitive < One
     def initialize(value)
         @value = Float(value)
     end
@@ -38,8 +36,7 @@ class FloatPrimitive
     end
 end
 
-class BooleanPrimitive
-    attr_reader :value
+class BooleanPrimitive < One
     def initialize(value)
         if (value)
             @value = true
@@ -53,8 +50,7 @@ class BooleanPrimitive
     end
 end
 
-class StringPrimitive
-    attr_reader :value
+class StringPrimitive < One
     def initialize(value)
         @value = String(value)
     end
@@ -64,8 +60,7 @@ class StringPrimitive
     end
 end
 
-class NullPrimitive
-    attr_reader :value
+class NullPrimitive < One
     def initialize()
         @value = nil
     end
@@ -227,6 +222,32 @@ class IntToFloat < One
     end
 end
 
+# Other
+
+class Variable < One
+    def visit(visitor)
+        visitor.visit_var(self)
+    end
+end
+
+class Assignment < Two
+    def visit(visitor)
+        visitor.visit_assign(self)
+    end
+end
+
+class Print < One
+    def visit(visitor)
+        visitor.visit_print(self)
+    end
+end
+
+class Block < One
+    def visit(visitor)
+        visitor.visit_print(self)
+    end
+end
+
 # Primitive Operations
 
 p1 = IntegerPrimitive.new(8)
@@ -341,4 +362,10 @@ c4 = IntToFloat.new(c1)
 puts c4.visit(Translator.new)
 puts c4.visit(Evaluator.new)
 
- 
+# Other
+
+# o1 = Variables.new(c1)
+# o2 = Assignment.new(o1, c1)
+o3 = Print.new(a1)
+puts o3.visit(Translator.new)
+o3.visit(Evaluator.new)

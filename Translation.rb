@@ -127,4 +127,22 @@ class Translator
     def visit_int_float(node)
         "Float(#{node.value.visit(self)})"
     end
+
+    # Other
+
+    def visit_var(node)
+        # "#{node.value.visit(self)}"
+    end
+
+    def visit_assign(node)
+        # "#{node.left.visit(self)} = #{node.right.visit(self)}"
+    end
+
+    def visit_print(node)
+        "print(#{node.value.visit(self)})"
+    end
+
+    def visit_block(node)
+        # "#{node.left.visit(self)} = #{node.right.visit(self)}"
+    end
 end
