@@ -142,7 +142,11 @@ class Translator
         "print(#{node.value.visit(self)})"
     end
 
-    def visit_block(node)
-        # "#{node.left.visit(self)} = #{node.right.visit(self)}"
+    def visit_block(block)
+        result = []
+        block.array.each do |line|
+            result.push("#{line.visit(self)}\n")
+        end
+        return result
     end
 end

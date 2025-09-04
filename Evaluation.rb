@@ -7,8 +7,6 @@ end
 
 class Evaluator
 
-    runtime = Runtime.new
-
     # Primitives
 
     def visit_integer(node)
@@ -226,15 +224,16 @@ class Evaluator
     # Other
 
     def visit_var(node)
-        # value = node.value
-        # raise 'Unknown variable' if (value.class != Variable && runtime.key?(value))
-        # value.visit()
+        value = node.value
+        # raise 'Unknown variable' if (value.class != Variable && @runtime.key?(value))
+        value.visit()
     end
 
     def visit_assign(node)
-        # left = node.left
-        # raise 'Invalid type for assignment' if (left.class != Variable)
-        # right = node.right
+        left = node.left
+        raise 'Invalid type for assignment' if (left.class != Variable)
+        right = node.right
+        # @runtime[left.visit(self)] = right.visit(self)
         # left.visit(self) = right.visit(self)
     end
 
@@ -242,8 +241,12 @@ class Evaluator
         puts node.value.visit(self)
     end
 
-    def visit_assign(node)
-
+    def visit_block(block)
+        result = []
+        block.array.each do |line|
+            result.push(line.visit(self))
+        end
+        return result
     end
 
 end

@@ -242,9 +242,14 @@ class Print < One
     end
 end
 
-class Block < One
+class Block
+    attr_reader :array
+    def initialize(array)
+        @array = array
+    end
+
     def visit(visitor)
-        visitor.visit_print(self)
+        visitor.visit_block(self)
     end
 end
 
@@ -364,8 +369,13 @@ puts c4.visit(Evaluator.new)
 
 # Other
 
-# o1 = Variables.new(c1)
-# o2 = Assignment.new(o1, c1)
+# o2 = Assignment.new('hi', a1)
+# o1 = Variable.new('hi')
+# puts o1.visit(Translator.new)
+# puts o1.visit(Evaluator.new) 
 o3 = Print.new(a1)
 puts o3.visit(Translator.new)
 o3.visit(Evaluator.new)
+o4 = Block.new([a1, a2, a3])
+puts o4.visit(Translator.new)
+puts o4.visit(Evaluator.new)
