@@ -6,6 +6,10 @@ class Runtime
 end
 
 class Evaluator
+    attr_reader :runtime
+    def initialize(runtime)
+        @runtime = runtime
+    end
 
     # Primitives
 
@@ -49,6 +53,7 @@ class Evaluator
 
     def visit_arithm_mul(node)
         left = node.left
+        # puts left.is_a?(IntegerPrimitive)
         raise 'Invalid type for multiply' if (left.class != FloatPrimitive && left.class != IntegerPrimitive)
         right = node.right
         raise 'Invalid type for multiply' if (right.class != FloatPrimitive && right.class != IntegerPrimitive)
@@ -82,7 +87,7 @@ class Evaluator
     def visit_arithm_neg(node)
         value = node.value
         raise 'Invalid type for negation' if (value.class != FloatPrimitive && value.class != IntegerPrimitive)
-        -value.visit(Evaluator.new)
+        -value.visit(self)
     end
 
     # Logical Operations
@@ -106,7 +111,7 @@ class Evaluator
     def visit_log_not(node)
         value = node.value
         raise 'Invalid type for not' if (value.class != BooleanPrimitive)
-        !value.visit(Evaluator.new)
+        !value.visit(self)
     end
 
     # Bitwise Operations
@@ -138,7 +143,7 @@ class Evaluator
     def visit_bit_not(node)
         value = node.value
         raise 'Invalid type for not' if (value.class != IntegerPrimitive)
-        ~value.visit(Evaluator.new)
+        ~value.visit(self)
     end
 
     def visit_left_shift(node)
@@ -225,20 +230,19 @@ class Evaluator
 
     def visit_var(node)
         value = node.value
-        # raise 'Unknown variable' if (value.class != Variable && @runtime.key?(value))
-        value.visit()
+        return runtime.variables.key?(value) ? runtime.variables.fetch(value) : nil
     end
 
     def visit_assign(node)
         left = node.left
         raise 'Invalid type for assignment' if (left.class != Variable)
         right = node.right
-        # @runtime[left.visit(self)] = right.visit(self)
-        # left.visit(self) = right.visit(self)
+        runtime.variables[left.value] = right.visit(self)
+        right.visit(self)
     end
 
     def visit_print(node)
-        puts node.value.visit(self)
+        node.value.visit(self)
     end
 
     def visit_block(block)

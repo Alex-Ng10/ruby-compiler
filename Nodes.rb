@@ -16,9 +16,10 @@ class Two
     end
 end
 
-class IntegerPrimitive < One
+class IntegerPrimitive
+    attr_reader :value
     def initialize(value)
-        @value = Integer(value)
+        @value = value
     end
 
     def visit(visitor)
@@ -28,7 +29,7 @@ end
 
 class FloatPrimitive < One
     def initialize(value)
-        @value = Float(value)
+        @value = value
     end
 
     def visit(visitor)
@@ -52,7 +53,7 @@ end
 
 class StringPrimitive < One
     def initialize(value)
-        @value = String(value)
+        @value = value
     end
 
     def visit(visitor)
@@ -257,55 +258,55 @@ end
 
 p1 = IntegerPrimitive.new(8)
 puts p1.visit(Translator.new)
-puts p1.visit(Evaluator.new)
+puts p1.visit(Evaluator.new(Runtime.new))
 p2 = FloatPrimitive.new(2.0)
 puts p2.visit(Translator.new)
-puts p2.visit(Evaluator.new)
+puts p2.visit(Evaluator.new(Runtime.new))
 p3 = BooleanPrimitive.new(nil)
 puts p3.visit(Translator.new)
-puts p3.visit(Evaluator.new)
+puts p3.visit(Evaluator.new(Runtime.new))
 p4 = StringPrimitive.new("hello there")
 puts p4.visit(Translator.new)
-puts p4.visit(Evaluator.new)
+puts p4.visit(Evaluator.new(Runtime.new))
 p5 = NullPrimitive.new
 puts p5.visit(Translator.new)
-puts p5.visit(Evaluator.new)
+puts p5.visit(Evaluator.new(Runtime.new))
 
 # Arithmetic Operations
 
 a1 = AddArithmeticOperation.new(p1, p2)
 puts a1.visit(Translator.new)
-puts a1.visit(Evaluator.new)
+puts a1.visit(Evaluator.new(Runtime.new))
 a2 = SubtractArithmeticOperation.new(p1, p2)
 puts a2.visit(Translator.new)
-puts a2.visit(Evaluator.new)
+puts a2.visit(Evaluator.new(Runtime.new))
 a3 = MultiplyArithmeticOperation.new(p1, p2)
 puts a3.visit(Translator.new)
-puts a3.visit(Evaluator.new)
+puts a3.visit(Evaluator.new(Runtime.new))
 a4 = DivideArithmeticOperation.new(p1, p2)
 puts a4.visit(Translator.new)
-puts a4.visit(Evaluator.new)
+puts a4.visit(Evaluator.new(Runtime.new))
 a5 = ModuloArithmeticOperation.new(p1, p2)
 puts a5.visit(Translator.new)
-puts a5.visit(Evaluator.new)
+puts a5.visit(Evaluator.new(Runtime.new))
 a6 = ExponentArithmeticOperation.new(p1, p2)
 puts a6.visit(Translator.new)
-puts a6.visit(Evaluator.new)
+puts a6.visit(Evaluator.new(Runtime.new))
 a7 = NegationArithmeticOperation.new(p1)
 puts a7.visit(Translator.new)
-puts a7.visit(Evaluator.new)
+puts a7.visit(Evaluator.new(Runtime.new))
 
 # Logical operations
 
 l1 = AndLogicalOperation.new(p3, p3)  # Those are the 3 logical operations that had to be implemented similarly to the exponentiation since they both use 2 boolean values.
 puts l1.visit(Translator.new)
-puts l1.visit(Evaluator.new)
+puts l1.visit(Evaluator.new(Runtime.new))
 l2 = OrLogicalOperation.new(p3, p3)
 puts l2.visit(Translator.new)
-puts l2.visit(Evaluator.new)
+puts l2.visit(Evaluator.new(Runtime.new))
 l3 = NotLogicalOperation.new(p3)     # This works similarly to the negation operation, since we just take a value and apply a negation operation.
 puts l3.visit(Translator.new)
-puts l3.visit(Evaluator.new)
+puts l3.visit(Evaluator.new(Runtime.new))
 
 # Bitwise Operations
 
@@ -314,22 +315,22 @@ i2 = IntegerPrimitive.new(3)
 
 b1 = BitAndOperation.new(i1, i2)
 puts b1.visit(Translator.new)
-puts b1.visit(Evaluator.new)
+puts b1.visit(Evaluator.new(Runtime.new))
 b2 = BitOrOperation.new(i1, i2)
 puts b2.visit(Translator.new)
-puts b2.visit(Evaluator.new)
+puts b2.visit(Evaluator.new(Runtime.new))
 b3 = BitXorOperation.new(i1, i2)
 puts b3.visit(Translator.new)
-puts b3.visit(Evaluator.new)
+puts b3.visit(Evaluator.new(Runtime.new))
 b4 = BitNotOperation.new(i1)
 puts b4.visit(Translator.new)
-puts b4.visit(Evaluator.new)
+puts b4.visit(Evaluator.new(Runtime.new))
 b5 = LeftShiftOperation.new(i1, i2)
 puts b5.visit(Translator.new)
-puts b5.visit(Evaluator.new)
+puts b5.visit(Evaluator.new(Runtime.new))
 b6 = RightShiftOperation.new(i1, i2)
 puts b6.visit(Translator.new)
-puts b6.visit(Evaluator.new)
+puts b6.visit(Evaluator.new(Runtime.new))
 
 # Relational Operations
 
@@ -338,22 +339,22 @@ x2 = IntegerPrimitive.new(10)
 
 r1 = EqualsOperation.new(x1, x2)
 puts r1.visit(Translator.new)
-puts r1.visit(Evaluator.new)
+puts r1.visit(Evaluator.new(Runtime.new))
 r2 = NotEqualsOperation.new(x1, x2)
 puts r2.visit(Translator.new)
-puts r2.visit(Evaluator.new)
+puts r2.visit(Evaluator.new(Runtime.new))
 r3 = LessThanOperation.new(x1, x2)
 puts r3.visit(Translator.new)
-puts r3.visit(Evaluator.new)
+puts r3.visit(Evaluator.new(Runtime.new))
 r4 = LessThanOrEqualOperation.new(x1, x2)
 puts r4.visit(Translator.new)
-puts r4.visit(Evaluator.new)
+puts r4.visit(Evaluator.new(Runtime.new))
 r5 = GreaterThanOperation.new(x1, x2)
 puts r5.visit(Translator.new)
-puts r5.visit(Evaluator.new)
+puts r5.visit(Evaluator.new(Runtime.new))
 r6 = GreaterThanOrEqualOperation.new(x1, x2)
 puts r6.visit(Translator.new)
-puts r6.visit(Evaluator.new)
+puts r6.visit(Evaluator.new(Runtime.new))
 
 # Casting Operations
 
@@ -362,20 +363,27 @@ c2 = FloatPrimitive.new(4.5)
 
 c3 = FloatToInt.new(c2)
 puts c3.visit(Translator.new)
-puts c3.visit(Evaluator.new)
+puts c3.visit(Evaluator.new(Runtime.new))
 c4 = IntToFloat.new(c1)
 puts c4.visit(Translator.new)
-puts c4.visit(Evaluator.new)
+puts c4.visit(Evaluator.new(Runtime.new))
 
 # Other
 
-# o2 = Assignment.new('hi', a1)
-# o1 = Variable.new('hi')
-# puts o1.visit(Translator.new)
-# puts o1.visit(Evaluator.new) 
+o1 = Variable.new('hi')
+puts o1.visit(Translator.new)
+puts o1.visit(Evaluator.new(Runtime.new))
+o2 = Assignment.new(o1, a1)
+puts o2.visit(Translator.new)
+puts o2.visit(Evaluator.new(Runtime.new))
 o3 = Print.new(a1)
+puts "print here"
 puts o3.visit(Translator.new)
-o3.visit(Evaluator.new)
-o4 = Block.new([a1, a2, a3])
+puts o3.visit(Evaluator.new(Runtime.new))
+o4 = Block.new([o1, o2, o1])
 puts o4.visit(Translator.new)
-puts o4.visit(Evaluator.new)
+puts o4.visit(Evaluator.new(Runtime.new))
+
+# r1 = AddArithmeticOperation.new(AddArithmeticOperation.new(IntegerPrimitive.new(5),FloatPrimitive.new(10.5)),SubtractArithmeticOperation.new(BitOrOperation.new(IntegerPrimitive.new(6),IntegerPrimitive.new(12)),BitAndOperation.new(IntegerPrimitive.new(5),IntegerPrimitive.new(3))))
+# puts r1.visit(Translator.new)
+# puts r1.visit(Evaluator.new(Runtime.new))
