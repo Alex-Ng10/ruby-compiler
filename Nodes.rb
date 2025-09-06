@@ -57,7 +57,7 @@ class StringPrimitive < One
     end
 
     def visit(visitor)
-        visitor.visit_float(self)
+        visitor.visit_string(self)
     end
 end
 
@@ -67,7 +67,7 @@ class NullPrimitive < One
     end
 
     def visit(visitor)
-        visitor.visit_float(self)
+        visitor.visit_null(self)
     end
 end
 
