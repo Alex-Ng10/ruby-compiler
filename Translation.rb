@@ -143,6 +143,10 @@ class Translator
     end
 
     def visit_block(block)
-        block.array.map { |line| line.visit(self) }.join("\n")
+        result = []
+        block.array.each do |line|
+            result.push("#{line.visit(self)}\n")
+        end
+        return result
     end
 end
