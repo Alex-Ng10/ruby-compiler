@@ -140,7 +140,7 @@ class Evaluator
         raise 'Invalid type for logical or' if (!left.is_a?(BooleanPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for logical or' if (!right.is_a?(BooleanPrimitive))
-        result = left.value && right.value
+        result = left.value || right.value
         return BooleanPrimitive.new(result)
     end
 
@@ -294,7 +294,7 @@ class Evaluator
         elsif right.value.class == Float
             result = FloatPrimitive.new(right.value)
         elsif right.value.class == TrueClass || right.value.class == FalseClass
-            result = BooleanPrimitve.new(right.value)
+            result = BooleanPrimitive.new(right.value)
         elsif right.value.class == String
             result = StringPrimitive.new(right.value)
         else
