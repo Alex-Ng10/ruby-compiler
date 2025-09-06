@@ -392,7 +392,7 @@ r1 = AddArithmeticOperation.new(AddArithmeticOperation.new(IntegerPrimitive.new(
 puts r1.visit(Translator.new)
 puts r1.visit(Evaluator.new(Runtime.new)).value
 
-# Demonstaration
+# Demonstration
 
 # # Arithmetic: (7 * 4 + 3) % 12
 # d1 = ModuloArithmeticOperation.new(AddArithmeticOperation.new(MultiplyArithmeticOperation.new(IntegerPrimitive.new(7), IntegerPrimitive.new(4)), IntegerPrimitive.new(3)), IntegerPrimitive.new(12))
