@@ -319,5 +319,4 @@ class Evaluator
             return result
         end
     end
-
 end

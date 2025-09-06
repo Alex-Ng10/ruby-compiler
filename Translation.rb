@@ -45,7 +45,7 @@ class Translator
     end
 
     def visit_arithm_exp(node)
-        "(#{node.left.visit(self)} ^ #{node.right.visit(self)})"
+        "(#{node.left.visit(self)} ** #{node.right.visit(self)})"
     end
 
     def visit_arithm_neg(node)
@@ -143,10 +143,6 @@ class Translator
     end
 
     def visit_block(block)
-        result = []
-        block.array.each do |line|
-            result.push("#{line.visit(self)}\n")
-        end
-        return result
+        block.array.map { |line| line.visit(self) }.join("\n")
     end
 end
