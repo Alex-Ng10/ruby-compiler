@@ -312,10 +312,11 @@ class Evaluator
         if block.array.size == 0
             return nil;
         else
-            result = nil
+            last = nil
             block.array.each do |line|
-                result = line.visit(self)
+                last = line.visit(self)
             end
+            result = last.respond_to?(:visit) ? last.value : last
             return result
         end
     end
