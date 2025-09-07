@@ -282,6 +282,7 @@ class Evaluator
     def visit_var(node)
         var = node.value.visit(self)
         raise 'Invalid type for variable' if (!var.is_a?(StringPrimitive))
+        # Checks if the node is in the runtime hash returning it or nil if not there
         return runtime.variables.key?(var.value) ? runtime.variables.fetch(var.value) : nil
     end
 
@@ -289,6 +290,7 @@ class Evaluator
         left = node.left
         raise 'Invalid type for Assignment' if (!left.is_a?(Variable))
         right = node.right.visit(self)
+        # Creates a node based on the value type
         if right.value.class == Integer
             result = IntegerPrimitive.new(right.value)
         elsif right.value.class == Float
@@ -300,6 +302,7 @@ class Evaluator
         else
             result = NullPrimitive.new
         end
+        # Stores the nope inside the hash
         runtime.variables[left.value.value] = result
         return right.value
     end
@@ -313,9 +316,11 @@ class Evaluator
             return nil;
         else
             last = nil
+            # Repeatly grabs a line from the block
             block.array.each do |line|
                 last = line.visit(self)
             end
+            # Checks if the last line is a node by checking what methods it responds to
             result = last.respond_to?(:visit) ? last.value : last
             return result
         end

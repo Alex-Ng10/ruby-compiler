@@ -144,6 +144,7 @@ class Translator
 
     def visit_block(block)
         result = []
+        # Repeatly stores a line from the block in an array
         block.array.each do |line|
             result.push("#{line.visit(self)}\n")
         end
