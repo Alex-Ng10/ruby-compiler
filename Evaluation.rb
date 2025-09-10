@@ -290,30 +290,19 @@ class Evaluator
         left = node.left
         raise 'Invalid type for Assignment' if (!left.is_a?(Variable))
         right = node.right.visit(self)
-        # Creates a node based on the value type
-        if right.value.class == Integer
-            result = IntegerPrimitive.new(right.value)
-        elsif right.value.class == Float
-            result = FloatPrimitive.new(right.value)
-        elsif right.value.class == TrueClass || right.value.class == FalseClass
-            result = BooleanPrimitive.new(right.value)
-        elsif right.value.class == String
-            result = StringPrimitive.new(right.value)
-        else
-            result = NullPrimitive.new
-        end
         # Stores the nope inside the hash
-        runtime.variables[left.value.value] = result
+        runtime.variables[left.value.value] = right
         return right.value
     end
 
     def visit_print(node)
-        return nil
+        puts node.value
+        return NullPrimitive.new
     end
 
     def visit_block(block)
         if block.array.size == 0
-            return nil;
+            return NullPrimitive.new;
         else
             last = nil
             # Repeatly grabs a line from the block
