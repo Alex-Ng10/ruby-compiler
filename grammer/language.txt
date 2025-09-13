@@ -1,6 +1,6 @@
 level0  = level0, level1
         | level1
-level1  = print level2
+level1  = $ level2
         | level2
 level2  = VAR = level3
         | level3
@@ -30,8 +30,8 @@ level6  = level6 +  level7
         | level6 ** level7
         | !level6
         | level7
-level7  = float level7
-        | int   level7
+level7  = [ level7
+        | ] level7
         | level8
 level8  = VAR
         | level9
