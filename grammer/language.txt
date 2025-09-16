@@ -6,7 +6,6 @@ level2  = VAR = level3
         | level3
 level3  = level3 && level4
         | level3 || level4
-        | !level3
         | level4
 level4  = level4 == level5
         | level4 != level5
@@ -18,27 +17,29 @@ level4  = level4 == level5
 level5  = level5 &  level6
         | level5 |  level6
         | level5 ^  level6
-        | ~level5
         | level5 << level6
         | level5 >> level6
         | level6
 level6  = level6 +  level7
-        | level6 -  level7 
-        | level6 *  level7 
-        | level6 /  level7 
-        | level6 %  level7
-        | level6 ** level7
-        | !level6
+        | level6 -  level7
         | level7
-level7  = [ level7
-        | ] level7
+level7  = level7 *  level8 
+        | level7 /  level8 
+        | level7 %  level8
         | level8
-level8  = VAR
+level8  = level8 ** level9
         | level9
-level9  = INT
+level9  = [ level10
+        | ] level10
+        |   level10
+level10 = ! level11
+        | @ level11
+        | ~ level11
+        |   level11
+level11 = VAR
+        | INT
         | FLOAT
         | BOOLEAN
         | STRING
         | NULL
-        | (
-        | )
+        | ()
