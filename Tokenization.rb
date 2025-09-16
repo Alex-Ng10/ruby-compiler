@@ -2,11 +2,12 @@ require_relative 'Tokens'
 
 class Lexer
     attr_reader :source, :i, :current_token, :tokens
-    def intialize(source)
+    def initialize(source)
         @source = source
         @i = 0
         @current_token = ''
         @tokens = []
+        lexer
     end
 
     def emit_token(type)
@@ -23,7 +24,7 @@ class Lexer
     end
 
     def has_character
-        @i < @source.length && 65 <= @source[@i].ord && @source[@i] <= 126
+        @i < @source.length && 65 <= @source[@i].ord && @source[@i].ord <= 126
     end
 
     def capture
@@ -41,22 +42,61 @@ class Lexer
                 emit_token(:print)
             elsif has('=')
                 capture
-                emit_token(:equal)
+                if has('=')
+                    capture
+                    emit_token(:equal)
+                else
+                    emit_token(:assign)
+                end
             elsif has('&')
                 capture
-                emit_token(:and)
+                if has('&')
+                    capture
+                    emit_token(:and)
+                else
+                    emit_token(:band)
+                end
             elsif has('|')
                 capture
-                emit_token(:or)
+                if has('|')
+                    capture
+                    emit_token(:or)
+                else
+                    emit_token(:bor)
+                end
             elsif has('!')
                 capture
-                emit_token(:not)
+                if has('=')
+                    capture
+                    emit_token(:nequal)
+                else
+                    emit_token(:not)
+                end
+            elsif has('@')
+                capture
+                emit_token(:bnot)
             elsif has('>')
                 capture
-                emit_token(:greater)
+                if has('=')
+                    capture
+                    emit_token(:greaterequal)
+                elsif has('>')
+                    capture
+                    emit_token(:right)
+                else
+                    emit_token(:greater)
+                end
             elsif has('<')
                 capture
-                emit_token(:less)
+                if has('=')
+                    capture
+                    emit_token(:lessequal)
+                elsif has('<')
+                    capture
+                    emit_token(:left)
+                else
+                    emit_token(:less)
+                end
             elsif has('^')
                 capture
                 emit_token(:xor)
@@ -71,7 +111,11 @@ class Lexer
                 emit_token(:minus)
             elsif has('*')
                 capture
-                emit_token(:multiply)
+                if has('*')
+                    emit_token(:exponent)
+                else
+                    emit_token(:multiply)
+                end
             elsif has('/')
                 capture
                 emit_token(:divide)
@@ -91,28 +135,59 @@ class Lexer
                 while has_digit
                     capture
                 end
-                emit_token(:int)
-            elsif has_character
-                while has_character
+                if has('.')
+                    capture
+                    while has_digit
+                        capture
+                    end
+                    emit_token(:float)
+                else
+                    emit_token(:int)
+                end
+            elsif has('"')
+                capture
+                while !has('"')
                     capture
                 end
                 emit_token(:string)
+            elsif has_character
+                if has('t')
+                    capture
+                    if !has_character
+                        emit_token(:true)
+                    end
+                elsif has('f')
+                    capture
+                    if !has_character
+                        emit_token(:false)
+                    end
+                elsif has('n')
+                    capture
+                    if !has_character
+                        emit_token(:null)
+                    end
+                else
+                    while has_character
+                        capture
+                    end
+                    emit_token(:var)
+                end
             elsif has('(')
                 capture
-                emit_token(:open_bracket)
+                emit_token(:bracket)
             elsif has(')')
                 capture
-                emit_token(:close_bracket)
+                emit_token(:bracket)
             elsif has(' ')
                 @i += 1
                 current_token = ''
             else
-                raise "Unknown token #{@current_token}"
+                raise "Unknown token at #{@i}"
             end
         end
         @tokens
     end
 end
 
-l1 = Lexer.new("hi")
-puts l1.tokens
+l1 = Lexer.new(gets.chomp)
+puts "Here are the tokens: #{l1.tokens}"
