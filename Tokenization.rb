@@ -1,4 +1,4 @@
-require_relative 'Tokens'
+
 
 class Lexer
     attr_reader :source, :i, :current_token, :tokens
@@ -11,7 +11,7 @@ class Lexer
     end
 
     def emit_token(type)
-        @tokens.push(Token.new(type, @current_token, @i, @i + @current_token.length - 1))
+        @tokens.push(Token.new(type, @current_token, @i - @current_token.length + 1, @i))
         @current_token = ''
     end
 
@@ -145,10 +145,11 @@ class Lexer
                     emit_token(:int)
                 end
             elsif has('"')
-                capture
+                @i += 1
                 while !has('"')
                     capture
                 end
+                @i += 1
                 emit_token(:string)
             elsif has_character
                 if has('t')
@@ -174,10 +175,10 @@ class Lexer
                 end
             elsif has('(')
                 capture
-                emit_token(:bracket)
+                emit_token(:leftbracket)
             elsif has(')')
                 capture
-                emit_token(:bracket)
+                emit_token(:rightbracket)
             elsif has(' ')
                 @i += 1
                 current_token = ''
@@ -188,6 +189,3 @@ class Lexer
         @tokens
     end
 end
-
-l1 = Lexer.new(gets.chomp)
-puts "Here are the tokens: #{l1.tokens}"
