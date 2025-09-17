@@ -1,11 +1,14 @@
+
+
 class Parser
-    def intialize(tokens)
+    attr_reader :i, :tokens
+    def initialize(tokens)
         @tokens = tokens
         @i = 0
     end
 
-    def Parser
-        level0
+    def parse
+        level6
     end
 
     def advance
@@ -14,7 +17,7 @@ class Parser
     end
 
     def has(type)
-        @i < @tokens.size && @tokens[@i][:type] == type
+        @i < @tokens.size && @tokens[@i].type == type
     end
 
     def level0
@@ -24,27 +27,116 @@ class Parser
             advance
             right.push(level1)
         end
-        if block.size == 0
+        if right.size != 0
+            right.insert(0, left)
             left = Block.new(right)
         end
         left
     end
 
     def level1
-        left = level2
         if has(:print)
             advance
             right = level2
             left = Print.new(right)
+        else
+            left = level2
         end
         left 
     end
 
-    def level2
+    def level 2
+        if has(:var)
+            left = level3
+            if has(:assign)
+                advance
+                right = level3
+                left = Assignment.new(left, right)
+            end
+        end
+        left
+    end
 
-    def level6
-        left = level7
-        while has(:plus)
+    def level3
+        left = level4
+        while true
+            if has(:and)
+                advance
+                right = level4
+                left = AndLogicalOperation.new(left, right)
+            elsif has(:or)
+                advance
+                right = level4
+                left = OrLogicalOperation.new(left, right)
+            else
+                break
+            end
+        end
+        left
+    end
+
+    def level4
+        left = level5
+        while true
+            if has(:equal)
+                advance 
+                right = level5
+                left = EqualsOperation.new(left, right)
+            elsif has(:nequal)
+                advance 
+                right = level5
+                left = NotEqualsOperation.new(left, right)
+            elsif has(:greater)
+                advance 
+                right = level5
+                left = GreaterThanOperation.new(left, right)
+            elsif has(:greaterequal)
+                advance 
+                right = level5
+                left = GreaterThanOrEqualOperation.new(left, right)
+            elsif has(:less)
+                advance 
+                right = level5
+                left = LessThanOperation.new(left, right)
+            elsif has(:lessequal)
+                advance 
+                right = level5
+                left = LessThanOrEqualOperation.new(left, right)
+            else
+                break
+            end
+        end
+        left
+    end
+
+    def level5
+        left = level6
+        while true
+            if has(:band)
+                advance
+                right = level6
+                left = BitAndOperation.new(left, right)
+            elsif has(:bor)
+                advance
+                right = level6
+                left = BitOrOperation.new(left, right)
+            elsif has(:xor)
+                advance
+                right = level6
+                left = BitXorOperation.new(left, right)
+            elsif has(:left)
+                advance
+                right = level6
+                left = LeftShiftOperation.new(left, right)
+            elsif has(:right)
+                advance
+                right = level6
+                left = RightShiftOperation.new(left, right) 
+            else
+                break
+            end
+        end
+        left
     end
 
     def level6
@@ -58,22 +150,82 @@ class Parser
                 advance
                 right = level7
                 left = SubtractArithmeticOperation.new(left, right)
-            elsif has(:multiply)
+            else
+                break
+            end
+        end
+        left
+    end
+
+    def level7
+        left = level8
+        while true
+            if has(:multiply)
                 advance
-                right = level7
+                right = level8
                 left = MultiplyArithmeticOperation.new(left, right)
             elsif has(:divide)
                 advance
-                right = level7
+                right = level8
                 left = DivideArithmeticOperation.new(left, right)
             elsif has(:modulo)
                 advance
-                right = level7
+                right = level8
                 left = ModuloArithmeticOperation.new(left, right)
-            elsif has(:exponent)
+            else
+                break
+            end
+        end
+        left
+    end
+
+    def level8
+        left = level9
+        while true
+            if has(:exponent)
                 advance
-                right = level7
+                right = level8
                 left = ExponentArithmeticOperation.new(left, right)
+            else
+                break
+            end
+        end
+        left
+    end
+
+    def level9
+        left = level10
+        while true
+            if has(:float_cast)
+                advance
+                right = level10
+                left = IntToFloat.new(right)
+            elsif has(:int_cast)    
+                advance
+                right = level10
+                left = FloatToInt.new(right)
+            else
+                break
+            end
+        end
+        left
+    end
+
+    def level10
+        left = level11
+        while true 
+            if has(:not)
+                advance
+                right = level11
+                left = NotLogicalOperation.new(right)
+            elsif has(:bnot)
+                advance
+                right = level11
+                left = BitNotOperation.new(right)
+            elsif has(:negation)
+                advance
+                right = level11
+                left = NegationArithmeticOperation.new(right)
             else
                 break
             end
@@ -83,21 +235,26 @@ class Parser
 
     def level11
         if has(:int)
-            return IntegerPrimitive.new(advance[:text].to_i)
+            value = IntegerPrimitive.new(advance.text.to_i)
         elsif has(:float)
-            return FloatPrimitive.new(advance[:text].to_f)
+            value = FloatPrimitive.new(advance.text.to_f)
         elsif has(:string)
-            return StringPrimitive.new(advance[:text].to_s)
+            value = StringPrimitive.new(advance.text)
         elsif has(:true)
-            return BooleanPrimitive.new(1)
+            value = BooleanPrimitive.new(1)
         elsif has(:false)
-            return BooleanPrimitive.new(nil)
+            value = BooleanPrimitive.new(nil)
         elsif has(:null)
-            return NullPrimitive.new
-        elsif has(:bracket)
-            return level3
+            value = NullPrimitive.new
+        elsif has(:leftbracket)
+            advance
+            value = level5
+            if !has(:rightbracket)
+                raise "Unclosed parathensis at #{@i}"
+            end
         else
-            raise "Unknown primitive at "
+            raise "Unknown primitive #{@tokens[@i - 1].text} at #{@i}"
         end
+        value
     end
 end
