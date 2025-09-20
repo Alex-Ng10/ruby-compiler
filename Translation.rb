@@ -131,7 +131,7 @@ class Translator
     # Other
 
     def visit_var(node)
-        "#{node.value.visit(self)}"
+        "#{node.value}"
     end
 
     def visit_assign(node)
