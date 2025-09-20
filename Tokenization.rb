@@ -11,7 +11,7 @@ class Lexer
     end
 
     def emit_token(type)
-        @tokens.push(Token.new(type, @current_token, @i - @current_token.length + 1, @i))
+        @tokens.push(Token.new(type, @current_token, @i - @current_token.length, @i - 1))
         @current_token = ''
     end
 
@@ -24,7 +24,9 @@ class Lexer
     end
 
     def has_character
-        @i < @source.length && 65 <= @source[@i].ord && @source[@i].ord <= 126
+        if  @i < @source.length
+            return 65 <= @source[@i].ord && @source[@i].ord <= 90 || 97 <= @source[@i].ord && @source[@i].ord <= 122
+        end
     end
 
     def capture
@@ -112,6 +114,7 @@ class Lexer
             elsif has('*')
                 capture
                 if has('*')
+                    capture
                     emit_token(:exponent)
                 else
                     emit_token(:multiply)
@@ -146,27 +149,20 @@ class Lexer
                 end
             elsif has('"')
                 @i += 1
-                while !has('"')
+                while (!has('"') && @i != source.length)
                     capture
                 end
+                raise "Incomplete string token \"#{@current_token} from #{@i - @current_token.length - 1} to #{@i - 1}" if !has('"')
                 @i += 1
                 emit_token(:string)
             elsif has_character
-                if has('t')
-                    capture
-                    if !has_character
-                        emit_token(:true)
-                    end
-                elsif has('f')
-                    capture
-                    if !has_character
-                        emit_token(:false)
-                    end
-                elsif has('n')
-                    capture
-                    if !has_character
-                        emit_token(:null)
-                    end
+                capture
+                if @current_token == "t" && !has_character
+                    emit_token(:true)
+                elsif @current_token == "f" && !has_character
+                    emit_token(:false)
+                elsif @current_token == "n" && !has_character
+                    emit_token(:null)
                 else
                     while has_character
                         capture
@@ -183,7 +179,8 @@ class Lexer
                 @i += 1
                 current_token = ''
             else
-                raise "Unknown token at #{@i}"
+                capture
+                raise "Unknown token #{@current_token} at index #{@i - 1}"
             end
         end
         @tokens
