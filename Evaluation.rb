@@ -280,23 +280,23 @@ class Evaluator
     # Other
 
     def visit_var(node)
-        var = node.value.visit(self)
-        raise 'Invalid type for variable' if (!var.is_a?(StringPrimitive))
+        var = node
+        raise 'Invalid type for variable' if (!var.is_a?(Variable))
         # Checks if the node is in the runtime hash returning it or nil if not there
-        return runtime.variables.key?(var.value) ? runtime.variables.fetch(var.value) : nil
+        return runtime.variables.key?(var.value) ? runtime.variables.fetch(var.value) : NullPrimitive.new
     end
 
     def visit_assign(node)
         left = node.left
         raise 'Invalid type for Assignment' if (!left.is_a?(Variable))
         right = node.right.visit(self)
-        # Stores the nope inside the hash
-        runtime.variables[left.value.value] = right
-        return right.value
+        # Stores the node inside the hash
+        runtime.variables[left.value] = right
+        return right
     end
 
     def visit_print(node)
-        puts node.value
+        puts node.value.visit(self).value
         return NullPrimitive.new
     end
 
