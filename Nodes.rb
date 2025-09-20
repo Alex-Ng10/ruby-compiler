@@ -302,8 +302,8 @@ end
 
 # # Bitwise Operations
 
-i1 = IntegerPrimitive.new(9)
-i2 = IntegerPrimitive.new(3)
+# i1 = IntegerPrimitive.new(9)
+# i2 = IntegerPrimitive.new(3)
 
 # b1 = BitAndOperation.new(i1, i2)
 # puts b1.visit(Translator.new)
@@ -475,4 +475,4 @@ puts "Here are the tokens: #{l1.tokens}"
 p1 = Parser.new(l1.tokens)
 puts r1 = p1.parse
 puts r1.visit(Translator.new)
-puts r1.visit(Evaluator.new(Runtime.new)).value
+puts r1.visit(Evaluator.new(Runtime.new))
