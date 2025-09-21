@@ -209,18 +209,18 @@ class Evaluator
 
     def visit_equals(node)
         left = node.left.visit(self)
-        raise 'Invalid type for equals' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+        # raise 'Invalid type for equals' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         right = node.right.visit(self)
-        raise 'Invalid type for equals' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+        # raise 'Invalid type for equals' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
         result = left.value == right.value   # numeric equality
         return BooleanPrimitive.new(result)
     end
 
     def visit_not_equals(node)
         left = node.left.visit(self)
-        raise 'Invalid type for not equals' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+        # raise 'Invalid type for not equals' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         right = node.right.visit(self)
-        raise 'Invalid type for not equals' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+        # raise 'Invalid type for not equals' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
         result = left.value != right.value
         return BooleanPrimitive.new(result)
     end
