@@ -1,5 +1,3 @@
-
-
 class Lexer
     attr_reader :source, :i, :current_token, :tokens
     def initialize(source)
@@ -12,7 +10,7 @@ class Lexer
 
     def emit_token(type)
         @tokens.push(Token.new(type, @current_token, @i - @current_token.length, @i - 1))
-        @current_token = ''
+        @current_token = ''   # reset captured chars for next token
     end
 
     def has(c)
@@ -25,6 +23,7 @@ class Lexer
 
     def has_character
         if  @i < @source.length
+            # check ASCII letters only (A-Z / a-z) and identifiers limited to letters
             return 65 <= @source[@i].ord && @source[@i].ord <= 90 || 97 <= @source[@i].ord && @source[@i].ord <= 122
         end
     end
@@ -64,7 +63,7 @@ class Lexer
                     capture
                     emit_token(:or)
                 else
-                    emit_token(:bor)
+                    emit_token(:bor)     # '|' bitwise OR
                 end
             elsif has('!')
                 capture
@@ -72,11 +71,11 @@ class Lexer
                     capture
                     emit_token(:nequal)
                 else
-                    emit_token(:not)
+                    emit_token(:not)     # '!' logical NOT
                 end
             elsif has('@')
                 capture
-                emit_token(:bnot)
+                emit_token(:bnot)       # '@' used as bitwise NOT 
             elsif has('>')
                 capture
                 if has('=')
@@ -84,7 +83,7 @@ class Lexer
                     emit_token(:greaterequal)
                 elsif has('>')
                     capture
-                    emit_token(:right)
+                    emit_token(:right)   # '>>' right shift
                 else
                     emit_token(:greater)
                 end
@@ -95,7 +94,7 @@ class Lexer
                     emit_token(:lessequal)
                 elsif has('<')
                     capture
-                    emit_token(:left)
+                    emit_token(:left)    # '<<' left shift
                 else
                     emit_token(:less)
                 end
@@ -135,6 +134,7 @@ class Lexer
                 capture
                 emit_token(:period)
             elsif has_digit
+                # integer or float: capture whole number, then optionally '.' and fractional part
                 while has_digit
                     capture
                 end
@@ -149,14 +149,17 @@ class Lexer
                 end
             elsif has('"')
                 @i += 1
+                # capture until closing quote; current_token accumulates content without quotes
                 while (!has('"') && @i != source.length)
                     capture
                 end
+                # checking if quote missing
                 raise "Incomplete string token \"#{@current_token} from #{@i - @current_token.length - 1} to #{@i - 1}" if !has('"')
                 @i += 1
                 emit_token(:string)
             elsif has_character
                 capture
+                # special-case single-letter keywords: t, f, n -> true/false/null
                 if @current_token == "t" && !has_character
                     emit_token(:true)
                 elsif @current_token == "f" && !has_character
@@ -164,6 +167,7 @@ class Lexer
                 elsif @current_token == "n" && !has_character
                     emit_token(:null)
                 else
+                    # keep capturing letters
                     while has_character
                         capture
                     end

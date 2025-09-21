@@ -1,20 +1,20 @@
 class Runtime
     attr_reader :variables
     def initialize()
-        @variables = Hash.new
+        @variables = Hash.new    # stores runtime bindings: name (String) -> Primitive node
     end
 end
 
 class Evaluator
     attr_reader :runtime
     def initialize(runtime)
-        @runtime = runtime
+        @runtime = runtime      # runtime is shared state for variables
     end
 
     # Primitives
 
     def visit_integer(node)
-        node
+        node                    
     end
 
     def visit_float(node)
@@ -36,12 +36,12 @@ class Evaluator
     # Arithmetic Operations
 
     def visit_arithm_add(node)
-        left = node.left.visit(self)
+        left = node.left.visit(self)   # evaluate left subtree -> returns a Primitive node
         raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
-        result = left.value + right.value
-        if result.class == Integer
+        result = left.value + right.value  
+        if result.class == Integer            # distinguish integer vs float result
             return IntegerPrimitive.new(result)
         else 
             return FloatPrimitive.new(result)
@@ -79,7 +79,7 @@ class Evaluator
         raise 'Invalid type for divide' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for divide' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
-        result = left.value / right.value
+        result = left.value / right.value  
         if result.class == Integer
             return IntegerPrimitive.new(result)
         else 
@@ -131,7 +131,7 @@ class Evaluator
         raise 'Invalid type for logical and' if (!left.is_a?(BooleanPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for logical and' if (!right.is_a?(BooleanPrimitive))
-        result = left.value && right.value
+        result = left.value && right.value   # standard Ruby boolean && 
         return BooleanPrimitive.new(result)
     end
 
@@ -147,7 +147,7 @@ class Evaluator
     def visit_log_not(node)
         value = node.value.visit(self)
         raise 'Invalid type for logical not' if (!value.is_a?(BooleanPrimitive))
-        result = !value.value
+        result = !value.value               # logical negation
         return BooleanPrimitive.new(result)
     end
 
@@ -158,7 +158,7 @@ class Evaluator
         raise 'Invalid type for bitwise and' if (!left.is_a?(IntegerPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for bitwise and' if (!right.is_a?(IntegerPrimitive))
-        result = left.value & right.value
+        result = left.value & right.value   # bitwise AND on raw integers
         return IntegerPrimitive.new(result)
     end
 
@@ -183,7 +183,7 @@ class Evaluator
     def visit_bit_not(node)
         value = node.value.visit(self)
         raise 'Invalid type for bitwise not' if (!value.is_a?(IntegerPrimitive))
-        result = ~value.value
+        result = ~value.value                # bitwise NOT
         return IntegerPrimitive.new(result)
     end
 
@@ -192,7 +192,7 @@ class Evaluator
         raise 'Invalid type for bitwise left shift' if (!left.is_a?(IntegerPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for bitwise left shift' if (!right.is_a?(IntegerPrimitive))
-        result = left.value << right.value
+        result = left.value << right.value   # shift using Ruby semantics
         return IntegerPrimitive.new(result)
     end
 
@@ -212,7 +212,7 @@ class Evaluator
         raise 'Invalid type for equals' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         right = node.right.visit(self)
         raise 'Invalid type for equals' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
-        result = left.value == right.value
+        result = left.value == right.value   # numeric equality
         return BooleanPrimitive.new(result)
     end
 
@@ -266,14 +266,14 @@ class Evaluator
     def visit_float_int(node)
         value = node.value.visit(self)
         raise 'Invalid type for float to int' if (!value.is_a?(FloatPrimitive))
-        result = Integer(value.value)
+        result = Integer(value.value)    # explicit cast using Ruby Integer()
         return IntegerPrimitive.new(result)
     end
 
     def visit_int_float(node)
         value = node.value.visit(self)
         raise 'Invalid type for int to float' if (!value.is_a?(IntegerPrimitive))
-        result = Float(value.value)
+        result = Float(value.value)      # explicit cast using Ruby Float()
         return FloatPrimitive.new(result)
     end
 
@@ -282,7 +282,7 @@ class Evaluator
     def visit_var(node)
         var = node
         raise 'Invalid type for variable' if (!var.is_a?(Variable))
-        # Checks if the node is in the runtime hash returning it or nil if not there
+        # return stored primitive node or NullPrimitive when missing
         return runtime.variables.key?(var.value) ? runtime.variables.fetch(var.value) : NullPrimitive.new
     end
 
@@ -290,14 +290,14 @@ class Evaluator
         left = node.left
         raise 'Invalid type for Assignment' if (!left.is_a?(Variable))
         right = node.right.visit(self)
-        # Stores the node inside the hash
+        # store evaluated primitive node into runtime
         runtime.variables[left.value] = right
         return right
     end
 
     def visit_print(node)
-        puts node.value.visit(self).value
-        return NullPrimitive.new
+        puts node.value.visit(self).value   # print raw value of evaluated expression
+        return NullPrimitive.new            # printing returns null to the language
     end
 
     def visit_block(block)
@@ -305,11 +305,11 @@ class Evaluator
             return NullPrimitive.new;
         else
             last = nil
-            # Repeatly grabs a line from the block
+            # Evaluate each line in order and keep last result
             block.array.each do |line|
                 last = line.visit(self)
             end
-            # Checks if the last line is a node by checking what methods it responds to
+            # If last is a node, extract its .value, otherwise it's already a raw value
             result = last.respond_to?(:visit) ? last.value : last
             return result
         end

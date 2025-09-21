@@ -3,7 +3,7 @@ class Token
     def initialize(type, text, start, back)
         @type  = type
         @text  = text
-        @start = start
-        @back  = back
+        @start = start   # index of first character of the token in the source
+        @back  = back    # index of last character of the token in the source (inclusive)
     end
 end
