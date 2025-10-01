@@ -1,0 +1,3 @@
+bool int int
+result = int == int 
+result && bool
