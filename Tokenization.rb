@@ -24,7 +24,7 @@ class Lexer
     def has_character
         if  @i < @source.length
             # check ASCII letters only (A-Z / a-z) and identifiers limited to letters
-            return 65 <= @source[@i].ord && @source[@i].ord <= 90 || 97 <= @source[@i].ord && @source[@i].ord <= 122
+            return @i < @source.length && 'a' <= @source[@i] && @source[@i] <= 'z' || 'A' <= @source[@i] && @source[@i] <= 'Z'
         end
     end
 

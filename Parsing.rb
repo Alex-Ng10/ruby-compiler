@@ -37,16 +37,12 @@ class Parser
     def level1
         left = level2
         i = false
-        while true
-            if has(:print)
-                raise "More then one print at index #{tokens[@i].start}" if i
-                advance
-                right = level2
-                left = Print.new(right)
-                i = true
-            else
-                break
-            end
+        while has(:print)
+            raise "More then one print at index #{tokens[@i].start}" if i
+            advance
+            right = level2
+            left = Print.new(right)
+            i = true
         end
         left 
     end
@@ -54,24 +50,20 @@ class Parser
     def level2
         left = level3
         i = false
-        while true
-            if has(:assign)
-                raise "More then one assign at index #{tokens[@i].start}" if i
-                advance
-                right = level3
-                left = Assignment.new(left, right)
-                i = true
-            else
-                break
-            end
+        while has(:assign)
+            raise "More then one assign at index #{tokens[@i].start}" if i
+            advance
+            right = level3
+            left = Assignment.new(left, right)
+            i = true
         end
         left
     end
 
     def level3
         left = level4
-        while true
-            if has(:and)
+        while has(:and)
+            if has(:and) || has(:or)
                 raise "Missing operand left of logical and at index #{tokens[@i].start} to #{tokens[@i].back}" if  left == nil
                 advance
                 right = level4
@@ -83,8 +75,6 @@ class Parser
                 right = level4
                 raise "Missing operand right of logical or at index #{tokens[@i - 1].start} to #{tokens[@i -1].back}" if  right == nil
                 left = OrLogicalOperation.new(left, right)
-            else
-                break
             end
         end
         left
