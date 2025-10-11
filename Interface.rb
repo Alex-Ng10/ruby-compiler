@@ -1,7 +1,8 @@
 require 'curses'
 require 'stringio'
-require_relative 'Tokenization'
-require_relative 'Parsing'
+require_relative 'Tokens'         # Token class 
+require_relative 'Tokenization'   # Lexer
+require_relative 'Parsing'        # Parser
 require_relative 'Nodes'
 require_relative 'Evaluation'
 require_relative 'Translation'
@@ -17,29 +18,21 @@ class Interface
     @user_code = ""         # code in your DSL
     @output_text = ""       # captured printed output
     @error_text = ""        # last error
-    @runtime = Runtime.new
 
     load_mystery_function
     setup_windows
   end
 
   def load_mystery_function
-    lines = Files.readlines(@mystery_file).map(&:strip)
-
-    # the first line contains parameter types
-    param_line = lines[0]
-    @param_types = param_line.split
-
-    # this should parse the reference implementation to undersatnd the function
-    reference_code = lines[1..-1].join("\n")
-
+    lines = File.readlines(@mystery_file).map(&:strip)   # Files -> File
+    @param_types = lines[0].split
     @param_names = ('a'..'z').first(@param_types.length)
   end
 
   def setup_windows
     init_screen
     noecho
-    curse_set(0)
+    curs_set(0)  # curse_set -> curs_set
 
     height = lines
     width = cols
@@ -92,7 +85,7 @@ class Interface
     table.setpos(0, 2)
     table.addstr("Test Cases")
 
-    #Header row
+    # Header row
     table.setpos(1, 1)
     header = @param_names.join(" | ") + " | Expected | Actual"
     table.addstr(header)
@@ -101,13 +94,13 @@ class Interface
     table.setpos(2, 1)
     table.addstr("-" * header.length)
 
-    # Draw data rows
-    @parameters.each_with_index do |params_set, index|
+    # data rows
+    @parameters.each_with_index do |param_set, index|
       table.setpos(index + 3, 1)
-      row = param_set.join (" | ")
+      row = param_set.map(&:to_s).join(" | ")
       row += " | #{@expected_values[index] || 'N/A'}"
       row += " | #{@actual_values[index] || 'N/A'}"
-      table.addstr(row)
+      table.addstr(row[0, table.maxx - 2])
     end
     table.refresh
   end
@@ -123,7 +116,7 @@ class Interface
     @user_code.lines.each_with_index do |line, index|
       break if index >= 8
       code.setpos(index + 1, 1)
-      code.addstr(line.chomp[0, @code.maxx - 2])
+      code.addstr(line.chomp[0, w])  # @code.maxx -> w
     end
     code.refresh
   end
@@ -135,66 +128,66 @@ class Interface
     output.setpos(0, 2)
     output.addstr("Output")
 
-      if @error_text.length > 0
-        output.attron(color_pair(3)) if has_colors? # Red text for errors
-        output.setpos(1, 1)
-        output.addstr("Error: #{@error_text}")
-        output.attroff(color_pair(3)) if has_colors?
-      else
-        output.setpos(1, 1)
-        output.addstr(@output_text)
+    if @error_text && @error_text.length > 0
+      output.attron(color_pair(3)) if has_colors?
+      output.setpos(1, 1)
+      output.addstr("Error: #{@error_text}"[0, output.maxx - 2])
+      output.attroff(color_pair(3)) if has_colors?
+    else
+      y = 1
+      @output_text.to_s.split("\n").each do |line|
+        break if y >= output.maxy - 1
+        output.setpos(y, 1)
+        output.addstr(line[0, output.maxx - 2])
+        y += 1
       end
-      output.refresh
     end
+    output.refresh
+  end
 
-    def draw_instructions
-      setpos(lines - 2, 0)
-      addstr("Controls: F1=Add Test Case | F2=Run Code | F3=Clear Code | F4=Exit")
-      refresh
-    end
+  def draw_instructions
+    setpos(lines - 2, 0)
+    addstr("Controls: F1=Add Test Case | F2=Edit+Run | F3=Clear | F4/q=Exit")
+    refresh
+  end
 
-    def get_parameter_input
-      values = []
+  def get_parameter_input
+    values = []
+    param = @param_input_window
 
-      param = @param_input_window
-      @param_types.each_with_index do |type, index|
-        # Move cursor to input position for this parameter
-        param.setpos(index + 1, @param_names[index].length + @param_types[index].length + 6)
+    @param_types.each_with_index do |type, index|
+      x = @param_names[index].length + @param_types[index].length + 6
+      param.setpos(index + 1, x)
 
-        # Enable echoing so user input is visible
-        echo
+      echo
+      curs_set(1)
 
-        # Show the cursor for input
-        curs_set(1)
-
-        input = ""
-        loop do
-          c = @param_input_window.getch
-          if c == 10
-            break
-          elsif c == 127 || c == KEY_BACKSPACE
-            if inp.length > 0
-              inp.chop!
-              inp.setpos(index + 1, @param_names[index].length + @param_types[index].length + 6)
-              inp.addstr(inp + " ")
-              inp.setpos(index + 1, @param_names[index].length + @param_types[index].length + 6 + inp.length)
-            end
-          else
-            input += c.chr
-            param.addch(c)
-          end
-        end
-
-        case type
-        when "int"
-          values << input.to_i
-        when "float"
-          values << input.to_f
-        when "string"
-          values << input
+      input = ""
+      loop do
+        c = param.getch
+        if c == 10 # Enter
+          break
+        elsif c == 127 || c == KEY_BACKSPACE || c == 263
+          next if input.empty?
+          input.chop!
+          param.setpos(index + 1, x)
+          param.addstr(" " * (param.maxx - x - 1))
+          param.setpos(index + 1, x)
+          param.addstr(input)
         else
-          values << (input.downcase == "true" || input == "1")
+          ch = c.is_a?(Integer) ? c.chr : c.to_s
+          input << ch
+          param.addstr(ch)
         end
+      end
+
+      case type
+      when "int"    then values << input.to_i
+      when "float"  then values << input.to_f
+      when "string" then values << input
+      when "bool"   then values << (%w[true 1 t].include?(input.strip.downcase))
+      else               values << input
+      end
 
       noecho
       curs_set(0)
@@ -205,11 +198,6 @@ class Interface
 
   def edit_code
     code = @code_window
-    code.box(0, 0)
-    code.setpos(0, 2)
-    code.addstr("Code Editor (ESC to finish)")
-    code.refresh
-    
     noecho
     curs_set(1)
 
@@ -241,7 +229,7 @@ class Interface
         text << "\n"
         cursor_row += 1
         cursor_col = 1
-      elseif c == 127 || c == KEY_BACKSPACE
+      elsif c == 127 || c == KEY_BACKSPACE || c == 263
         if text.length > 0
           text.chop!
           if cursor_col > 1
@@ -256,69 +244,115 @@ class Interface
         text << ch
         cursor_col += 1
       end
-      
-      def run_code
-        @error_text = ""
-        @output_text = ""
-        @actual_values.clear
+    end
 
-        begin
-          @parameters.each_with_index do |param_set, test_index| 
-            test_runtime = Runtime.new 
-            @param_names.each_with_index do |name, index|
-              case @param_types[index]
-              when "int"
-                test_runtime.variables[name] = IntegerPrimitive.new(param_set[index])
-              when "float"
-                test_runtime.variables[name] = FloatPrimitive.new(param_set[index])
-              when "string"
-                test_runtime.variables[name] = StringPrimitive.new(param_set[index])
-              when "bool"
-                test_runtime.variables[name] = BoolPrimitive.new(param_set[index])
-              end
-            end
+    curs_set(0)
+    text
+  end
 
-            @output_text = "Code executed successfully."
+  def run_code
+    @error_text = ""
+    @output_text = ""
+    @actual_values = Array.new(@parameters.length)
 
-          rescue => e
-            @error_text = e.message
+    begin
+      @parameters.each_with_index do |param_set, test_index|
+        test_runtime = Runtime.new
+
+        # bind a,b,c,... for this test
+        @param_names.each_with_index do |name, idx|
+          case @param_types[idx]
+          when "int"
+            test_runtime.variables[name] = IntegerPrimitive.new(param_set[idx].to_i)
+          when "float"
+            test_runtime.variables[name] = FloatPrimitive.new(param_set[idx].to_f)
+          when "string"
+            test_runtime.variables[name] = StringPrimitive.new(param_set[idx].to_s)
+          when "bool"
+            test_runtime.variables[name] = BooleanPrimitive.new(!!param_set[idx])
+          else
+            test_runtime.variables[name] = StringPrimitive.new(param_set[idx].to_s)
           end
         end
 
-        def calculated_expected_values
-          @expected_values.clear
-          @parameters.each do |param_set|
-            
-            case File.basename(@mystery_file)
-            when "mystery1.txt"
-              sum = param_set[0] + param_set[1]
-              @expected_values << sum / 2
-            when "mystery2.txt"
-              phrase = param_set[0] + param_set[1] + param_set[2]
-              @expected_values << phrase + "!?"
-            when "mystery3.txt"
-              sum = param_set[0] + param_set[1]
-              @expected_values << sum / 2.0
-            when "mystery4.txt"
-              @expected_values << (param_set[0] && param_set[1])
-            when "mystery5.txt"
-              result parma_set[1] == param_set[2]
-              @expected_values << (result && param_set[0])
-            else
-              @expected_values << "Unknown"
-            end
-        end
+        # parse + eval user's code
+        lexer = Lexer.new(@user_code)
+        ast = Parser.new(lexer.tokens).parse
+
+        # capture prints
+        old_stdout = $stdout
+        sio = StringIO.new
+        $stdout = sio
+        result = ast.visit(Evaluator.new(test_runtime))
+        $stdout = old_stdout
+
+        printed = sio.string
+        @output_text << printed unless printed.empty?
+
+        actual = result.respond_to?(:value) ? result.value : result
+        @actual_values[test_index] = actual
       end
-# class Screen
-#     def initialize
-#     Curses::init_screen
-#     end
+    rescue => e
+      @error_text = e.message
+    end
+  end
 
-#   def render
-#     # ...
-#     Curses::getch
-#   end
-# end
+  def calculate_expected_values
+    @expected_values.clear
+    @parameters.each do |p|
+      case File.basename(@mystery_file)
+      when "mystery1.txt" # int int ; (a + b) / 2
+        @expected_values << ((p[0].to_i + p[1].to_i) / 2)
+      when "mystery2.txt" # string string string ; (a + b + c) + "!?"
+        @expected_values << (p[0].to_s + p[1].to_s + p[2].to_s + "!?")
+      when "mystery3.txt" # float float ; (a + b) / 2.0
+        @expected_values << ((p[0].to_f + p[1].to_f) / 2.0)
+      when "mystery4.txt" # int int ; a * b
+        @expected_values << (p[0].to_i * p[1].to_i)
+      when "mystery5.txt" # bool int int ; (b == c) && a
+        @expected_values << ((p[1].to_i == p[2].to_i) && !!p[0])
+      else
+        @expected_values << "Unknown"
+      end
+    end
+  end
 
-# screen = Screen.new
-# screen.render
+  def start
+    stdscr.keypad(true)
+    draw_interface
+    loop do
+      ch = stdscr.getch
+      case ch
+      when KEY_F1
+        vals = get_parameter_input
+        @parameters << vals
+        calculate_expected_values
+        draw_interface
+      when KEY_F2
+        @user_code = edit_code
+        run_code
+        draw_interface
+      when KEY_F3
+        @user_code = ""
+        @actual_values.clear
+        @output_text = ""
+        @error_text = ""
+        draw_interface
+      when KEY_F4, 'q'.ord
+        break
+      end
+    end
+  ensure
+    close_screen
+  end
+end
+
+# CLI entry
+if __FILE__ == $0
+  path = ARGV[0]
+  unless path && File.exist?(path)
+    puts "Usage: ruby Interface.rb grammer/mystery1.txt"
+    exit 1
+  end
+  Interface.new(path).start
+end
