@@ -470,12 +470,20 @@ end
 # puts d18.visit(Translator.new)
 # puts d18.visit(Evaluator.new(Runtime.new))
 
-l1 = Lexer.new(gets.chomp)
-# puts "Here are the tokens: #{l1.tokens}"
-p1 = Parser.new(l1.tokens)
-puts r1 = p1.parse
-puts r1.visit(Translator.new)
-puts r1.visit(Evaluator.new(Runtime.new))
+# l1 = Lexer.new(gets.chomp)
+# # puts "Here are the tokens: #{l1.tokens}"
+# p1 = Parser.new(l1.tokens)
+# puts r1 = p1.parse
+# puts r1.visit(Translator.new)
+# puts r1.visit(Evaluator.new(Runtime.new))
+
+if __FILE__ == $0
+  l1 = Lexer.new(gets.chomp)              # from [`Lexer`](Tokenization.rb)
+  p1 = Parser.new(l1.tokens)              # from [`Parser`](Parsing.rb)
+  puts r1 = p1.parse
+  puts r1.visit(Translator.new)
+  puts r1.visit(Evaluator.new(Runtime.new))
+end
 
 # $ 5 + 2, $ 10 * 6 - 10 % 4, $ (5 + 2) * 3 % 4, $ @6, $ 2 ** 9, $ 45 & ~~~(1 + 3), 9 << 1
 # $ 8 >= 7 + 1, $ !!!!f, $ t || !f, $ (5 > 3) && !(2 > 8)

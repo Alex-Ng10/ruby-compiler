@@ -350,6 +350,7 @@ end
 # CLI entry
 if __FILE__ == $0
   path = ARGV[0]
+  path &&= File.expand_path(path)   # normalize .\grammer\mystery1.txt
   unless path && File.exist?(path)
     puts "Usage: ruby Interface.rb grammer/mystery1.txt"
     exit 1
