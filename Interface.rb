@@ -191,7 +191,7 @@ class Interface
       x = @param_names[index].length + @param_types[index].length + 6
       param.setpos(index + 1, x)
 
-      echo
+      noecho
       curs_set(1)
 
       input = ""
@@ -206,6 +206,7 @@ class Interface
           param.addstr(" " * (param.maxx - x - 1))
           param.setpos(index + 1, x)
           param.addstr(input)
+          param.setpos(index + 1, x + input.length)
         else
           ch = c.is_a?(Integer) ? c.chr : c.to_s
           input << ch
@@ -221,7 +222,6 @@ class Interface
       else               values << input
       end
 
-      noecho
       curs_set(0)
     end
 
@@ -357,8 +357,15 @@ class Interface
       case ch
       when KEY_F1
         vals = get_parameter_input
-        @parameters << vals
-        calculate_expected_values
+        if vals.nil? || vals.empty?
+          @error_text = "No values entered"
+        elsif @parameters.any? { |p| p == vals }
+          @error_text = "Duplicate test case — not added"
+        else
+          @parameters << vals
+          calculate_expected_values
+          @error_text = ""
+        end
         draw_interface
       when KEY_F2
         @user_code = edit_code
