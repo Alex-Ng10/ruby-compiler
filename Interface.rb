@@ -32,17 +32,47 @@ class Interface
   def setup_windows
     init_screen
     noecho
-    curs_set(0)  # curse_set -> curs_set
+    curs_set(0)
 
-    height = lines
-    width = cols
+    height = Curses.lines
+    width  = Curses.cols
 
-    @param_input_window = Window.new(5, width / 2, 0, 0)
-    @table_window       = Window.new(height - 15, width / 2, 5, 0)
-    @code_window        = Window.new(10, width / 2, 0, width / 2)
-    @output_window      = Window.new(height - 10, width / 2, 10, width / 2)
+    min_height = 15
+    min_width  = 40
+    height = [height, min_height].max
+    width  = [width, min_width].max
 
-    [@param_input_window, @table_window, @code_window, @output_window].each { |win| win.keypad(true) }
+    param_h = 5
+    code_h  = 10
+    table_h = [height - param_h - code_h - 2, 3].max
+    output_h = [height - code_h - 2, 3].max
+
+    left_w  = (width / 2).floor
+    right_w = width - left_w
+
+    begin
+      @param_input_window = Window.new(param_h, left_w, 0, 0)
+      @table_window       = Window.new(table_h, left_w, param_h, 0)
+      @code_window        = Window.new(code_h, right_w, 0, left_w)
+      @output_window      = Window.new(output_h, right_w, code_h, left_w)
+    rescue => e
+
+      @param_input_window = stdscr
+      @table_window       = stdscr
+      @code_window        = stdscr
+      @output_window      = stdscr
+    end
+
+    [@param_input_window, @table_window, @code_window, @output_window].each do |win|
+      begin
+        win.keypad(true) if win && win.respond_to?(:keypad)
+      rescue RuntimeError
+      end
+    end
+
+    # ensure stdscr background is cleared once so subwindows are visible
+    stdscr.clear if stdscr.respond_to?(:clear)
+    stdscr.refresh if stdscr.respond_to?(:refresh)
 
     if has_colors?
       start_color
@@ -53,13 +83,15 @@ class Interface
   end
 
   def draw_interface
-    clear
-    draw_param_input
+    # Had to remove refresh here because it was erasing subwindows
+    draw_param_input   
     draw_table
     draw_code_editor
     draw_output
     draw_instructions
-    refresh
+
+    # refresh stdscr once so instructions (and overlays) appear
+    stdscr.refresh if stdscr.respond_to?(:refresh)
   end
 
   def draw_param_input
