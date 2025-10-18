@@ -27,6 +27,22 @@ class Interface
     lines = File.readlines(@mystery_file).map(&:strip)   # Files -> File
     @param_types = lines[0].split
     @param_names = ('a'..'z').first(@param_types.length)
+
+    @reference_source = lines[1..-1].join("\n")
+
+    # default case for parameters for mystery files
+    defaults = @param_types.each_with_index.map do |t, i|
+      case t
+      when "int"    then 2
+      when "float"  then 2.0
+      when "string" then "s#{i + 2}"
+      when "bool"   then true
+      else "" 
+      end
+    end
+
+    @parameters = [defaults]
+    calculate_expected_values   # populate @expected_values for the default case
   end
 
   def setup_windows
@@ -106,7 +122,7 @@ class Interface
       inp.addstr("#{name} (#{@param_types[index]}): ")
     end
     inp.setpos(@param_names.length + 2, 1)
-    inp.addstr("Press F1 to add test case")
+    inp.addstr(" Press F1 to add test case ")
     inp.refresh
   end
 
@@ -115,7 +131,7 @@ class Interface
     table.clear
     table.box(0, 0)
     table.setpos(0, 2)
-    table.addstr("Test Cases")
+    table.addstr(" Test Cases ")
 
     # Header row
     table.setpos(1, 1)
@@ -142,7 +158,7 @@ class Interface
     code.clear
     code.box(0, 0)
     code.setpos(0, 2)
-    code.addstr("Code Editor (F2 to edit/run)")
+    code.addstr(" Code Editor (F2 to edit/run) ")
     w = code.maxx - 2
 
     @user_code.lines.each_with_index do |line, index|
@@ -158,7 +174,7 @@ class Interface
     output.clear
     output.box(0, 0)
     output.setpos(0, 2)
-    output.addstr("Output")
+    output.addstr(" Output ")
 
     if @error_text && @error_text.length > 0
       output.attron(color_pair(3)) if has_colors?
@@ -183,6 +199,22 @@ class Interface
     refresh
   end
 
+  def _normalize_key(c)
+    return :enter   if c == 10 || c == 13
+    return :esc     if c == 27
+    return :back    if c == 8 || c == 127 || c == KEY_BACKSPACE || c == 263
+    return :delete  if c == KEY_DC
+    return :left    if c == KEY_LEFT
+    return :right   if c == KEY_RIGHT
+
+    return c if c.is_a?(String) && c.length > 0
+
+    if c.is_a?(Integer) && c >= 32 && c <= 126
+      return c.chr
+    end
+    :other
+  end
+
   def get_parameter_input
     values = []
     param = @param_input_window
@@ -196,10 +228,13 @@ class Interface
 
       input = ""
       loop do
-        c = param.getch
-        if c == 10 # Enter
+        raw = param.getch
+        key = _normalize_key(raw)
+
+        case key
+        when :enter
           break
-        elsif c == 127 || c == KEY_BACKSPACE || c == 263
+        when :back
           next if input.empty?
           input.chop!
           param.setpos(index + 1, x)
@@ -207,22 +242,34 @@ class Interface
           param.setpos(index + 1, x)
           param.addstr(input)
           param.setpos(index + 1, x + input.length)
+        when :delete
+        when :esc
+          # treat ESC as cancel current input (return nil to caller)
+          input = nil
+          break
+        when String
+          input << key
+          param.addstr(key)
         else
-          ch = c.is_a?(Integer) ? c.chr : c.to_s
-          input << ch
-          param.addstr(ch)
+          # ignore other special keys
         end
+      end
+
+      curs_set(0)
+
+      # if user cancelled with ESC return empty marker
+      if input.nil?
+        values = []
+        break
       end
 
       case type
       when "int"    then values << input.to_i
       when "float"  then values << input.to_f
       when "string" then values << input
-      when "bool"   then values << (%w[true 1 t].include?(input.strip.downcase))
+      when "bool"   then values << (%w[true 1 t].include?(input.to_s.strip.downcase))
       else               values << input
       end
-
-      curs_set(0)
     end
 
     values
@@ -246,7 +293,7 @@ class Interface
       w = code.maxx - 2
 
       text.lines.each_with_index do |line, index|
-        break if index >= 8
+        break if index >= (code.maxy - 2)
         code.setpos(index + 1, 1)
         code.addstr(line.chomp[0, w])
       end
@@ -254,27 +301,30 @@ class Interface
       code.setpos(cursor_row, cursor_col)
       code.refresh
 
-      c = code.getch
-      if c == 27 # ESC
+      raw = code.getch
+      key = _normalize_key(raw)
+
+      case key
+      when :esc
         break
-      elsif c == 10 # Enter
+      when :enter
         text << "\n"
         cursor_row += 1
         cursor_col = 1
-      elsif c == 127 || c == KEY_BACKSPACE || c == 263
-        if text.length > 0
-          text.chop!
-          if cursor_col > 1
-            cursor_col -= 1
-          elsif cursor_row > 1
-            cursor_row -= 1
-            cursor_col = 1
-          end
+      when :back
+        next if text.empty?
+        text.chop!
+        if cursor_col > 1
+          cursor_col -= 1
+        elsif cursor_row > 1
+          cursor_row -= 1
+          cursor_col = 1
         end
-      else
-        ch = c.is_a?(Integer) ? c.chr : c.to_s
-        text << ch
+      when String
+        text << key
         cursor_col += 1
+      else
+        # ignore arrows/delete for now (could implement cursor movement)
       end
     end
 
@@ -376,7 +426,7 @@ class Interface
         @actual_values.clear
         @output_text = ""
         @error_text = ""
-        draw_interface
+        draw_interface  
       when KEY_F4, 'q'.ord
         break
       end
@@ -389,7 +439,7 @@ end
 # CLI entry
 if __FILE__ == $0
   path = ARGV[0]
-  path &&= File.expand_path(path)   # normalize .\grammer\mystery1.txt
+  path &&= File.expand_path(path)   
   unless path && File.exist?(path)
     puts "Usage: ruby Interface.rb grammer/mystery1.txt"
     exit 1
