@@ -338,34 +338,40 @@ class Interface
     @actual_values = Array.new(@parameters.length)
 
     begin
+      # Normalize editor text:
+      # - drop CRs
+      # - replace Unicode minus with ASCII '-'
+      # - split lines, trim, drop empties
+      # - join with commas (lexer doesn’t treat newlines as separators)
+      source = @user_code.to_s.gsub("\r", "").tr("\u2212", "-")
+      source = source.lines.map { |l| l.strip }.reject(&:empty?).join(", ")
+      raise "No code entered" if source.empty?
+
       @parameters.each_with_index do |param_set, test_index|
         test_runtime = Runtime.new
 
-        # bind a,b,c,... for this test
+        # Bind parameters by name and type
         @param_names.each_with_index do |name, idx|
-          case @param_types[idx]
-          when "int"
-            test_runtime.variables[name] = IntegerPrimitive.new(param_set[idx].to_i)
-          when "float"
-            test_runtime.variables[name] = FloatPrimitive.new(param_set[idx].to_f)
-          when "string"
-            test_runtime.variables[name] = StringPrimitive.new(param_set[idx].to_s)
-          when "bool"
-            test_runtime.variables[name] = BooleanPrimitive.new(!!param_set[idx])
-          else
-            test_runtime.variables[name] = StringPrimitive.new(param_set[idx].to_s)
-          end
+          value = param_set[idx]
+          test_runtime.variables[name] =
+            case @param_types[idx]
+            when "int"    then IntegerPrimitive.new(value.to_i)
+            when "float"  then FloatPrimitive.new(value.to_f)
+            when "string" then StringPrimitive.new(value.to_s)
+            when "bool"   then BooleanPrimitive.new(!!value)
+            else StringPrimitive.new(value.to_s)
+            end
         end
 
-        # parse + eval user's code
-        lexer = Lexer.new(@user_code)
-        ast = Parser.new(lexer.tokens).parse
+        # Parse + eval user's code
+        lexer = Lexer.new(source)                    # [`Lexer`](Tokenization.rb)
+        ast   = Parser.new(lexer.tokens).parse       # [`Parser`](Parsing.rb)
 
-        # capture prints
+        # Capture printed output
         old_stdout = $stdout
         sio = StringIO.new
         $stdout = sio
-        result = ast.visit(Evaluator.new(test_runtime))
+        result = ast.visit(Evaluator.new(test_runtime))   # [`Evaluator`](Evaluation.rb)
         $stdout = old_stdout
 
         printed = sio.string
@@ -374,10 +380,14 @@ class Interface
         actual = result.respond_to?(:value) ? result.value : result
         @actual_values[test_index] = actual
       end
+
     rescue => e
-      @error_text = e.message
+      @error_text = "#{e.class}: #{e.message}"
+    ensure
+      $stdout = STDOUT
     end
   end
+
 
   def calculate_expected_values
     @expected_values.clear
