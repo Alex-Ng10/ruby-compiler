@@ -9,6 +9,7 @@ require_relative 'Translation'
 
 include Curses
 
+# Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
 class Interface
   def initialize(mystery_file)
     @mystery_file = mystery_file

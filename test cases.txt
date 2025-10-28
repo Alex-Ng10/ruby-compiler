@@ -1,0 +1,35 @@
+For milestone 3, here is some test cases 
+
+General Demo: 
+$ "hi from the DSL"
+x = 10
+y = x * 3
+$ y
+y + 1
+
+mystery1:
+$ (a + b)
+(a + b) / 2
+
+mystery2:
+$ a + b + c
+phrase = a + b + c
+phrase + "!?"
+
+mystery3:
+$ (a + b)
+(a + b) / 2.0
+
+mystery4:
+$ a * b
+a * b
+
+Hello world:
+$ "Hello World"
+
+Mixed program: prints and returns a value: 
+$ "starting"
+x = 10
+y = x * 3
+$ y
+y + 1

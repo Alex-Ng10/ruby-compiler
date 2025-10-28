@@ -36,14 +36,21 @@ class Evaluator
     # Arithmetic Operations
 
     def visit_arithm_add(node)
-        left = node.left.visit(self)   # evaluate left subtree -> returns a Primitive node
-        raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+        left = node.left.visit(self)
         right = node.right.visit(self)
+
+        # allow string concatenation
+        if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+            return StringPrimitive.new(left.value + right.value)
+        end
+
+        # numeric addition (int/float)
+        raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
-        result = left.value + right.value  
-        if result.class == Integer            # distinguish integer vs float result
+        result = left.value + right.value
+        if result.class == Integer
             return IntegerPrimitive.new(result)
-        else 
+        else
             return FloatPrimitive.new(result)
         end
     end
