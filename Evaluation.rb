@@ -34,23 +34,16 @@ class Evaluator
     end
 
     # Arithmetic Operations
-
+    # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
     def visit_arithm_add(node)
-        left = node.left.visit(self)
-        right = node.right.visit(self)
-
-        # allow string concatenation
-        if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
-            return StringPrimitive.new(left.value + right.value)
-        end
-
-        # numeric addition (int/float)
+        left = node.left.visit(self)   # evaluate left subtree -> returns a Primitive node
         raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+        right = node.right.visit(self)
         raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
-        result = left.value + right.value
-        if result.class == Integer
+        result = left.value + right.value  
+        if result.class == Integer            # distinguish integer vs float result
             return IntegerPrimitive.new(result)
-        else
+        else 
             return FloatPrimitive.new(result)
         end
     end
