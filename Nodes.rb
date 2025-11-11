@@ -21,6 +21,25 @@ class Two
     end
 end
 
+class Three
+    attr_reader :left, :middle, :right
+    def initialize(left, middle, right)
+        @left = left
+        @middle = middle
+        @right = right
+    end
+end
+
+class Four
+    attr_reader :first, :second, :third, :fourth
+    def initialize(first, second, third, fourth)
+        @first = first
+        @second = second
+        @third = third
+        @fourth = fourth
+    end
+end
+
 class IntegerPrimitive < One
     def visit(visitor)
         visitor.visit_integer(self)
@@ -243,6 +262,52 @@ class Block
 
     def visit(visitor)
         visitor.visit_block(self)
+    end
+end
+
+class Conditional < Three
+    def initialize(left, middle, right = NullPrimitive.new)
+        @left = left
+        @middle = middle
+        @right = right
+    end
+    def visit(visitor)
+        visitor.visit_conditional(self)
+    end
+end
+
+class WhileLoop < Two
+    def visit(visitor)
+        visitor.visit_while_loop(self)
+    end
+end
+
+class ForEachLoop < Four
+    def visit(visitor)
+        visitor.visit_for_each_loop(self)
+    end
+end
+
+class FunctionDefintion
+    attr_reader :name, :parameters, :body
+    def initialize(name, parameters, body)
+        @name = name
+        @parameters = parameters
+        @body = body
+    end
+    def visit(visitor)
+        visitor.visit_function_defintion(self)
+    end
+end
+
+class FunctionCall
+    attr_reader :name, :parameters
+    def initialize(name, parameters)
+        @name = name
+        @parameters = parameters
+    end
+    def visit(visitor)
+        visitor.visit_function_call(self)
     end
 end
 
@@ -477,14 +542,50 @@ end
 # puts r1.visit(Translator.new)
 # puts r1.visit(Evaluator.new(Runtime.new))
 
-if __FILE__ == $0                           # Guard necessary to use mystery files
-  l1 = Lexer.new(gets.chomp)             
-  p1 = Parser.new(l1.tokens)            
-  puts r1 = p1.parse
-  puts r1.visit(Translator.new)
-  puts r1.visit(Evaluator.new(Runtime.new))
-end
+# if __FILE__ == $0                           # Guard necessary to use mystery files
+#   l1 = Lexer.new(gets.chomp)             
+#   p1 = Parser.new(l1.tokens)            
+#   puts r1 = p1.parse
+#   puts r1.visit(Translator.new)
+#   puts r1.visit(Evaluator.new(Runtime.new))
+# end
 
 # $ 5 + 2, $ 10 * 6 - 10 % 4, $ (5 + 2) * 3 % 4, $ @6, $ 2 ** 9, $ 45 & ~~~(1 + 3), 9 << 1
 # $ 8 >= 7 + 1, $ !!!!f, $ t || !f, $ (5 > 3) && !(2 > 8)
 # x = 5, $ x + x * x, x = 999, $ x
+
+# Tests
+
+i1 = IntegerPrimitive.new(8)
+i2 = IntegerPrimitive.new(8)
+r1 = EqualsOperation.new(i1, i2)
+b1 = Block.new([IntegerPrimitive.new(3), IntegerPrimitive.new(2), IntegerPrimitive.new(1)])
+# puts b1.visit(Translator.new)
+b2 = Block.new([IntegerPrimitive.new(1), IntegerPrimitive.new(2), IntegerPrimitive.new(3)])
+# puts b2.visit(Translator.new)
+# c1 = Conditional.new(r1, b1, b2)
+# puts c1.visit(Translator.new)
+# puts c1.visit(Evaluator.new(Runtime.new))
+# c1 = Conditional.new(r1, b1)
+# puts c1.visit(Translator.new)
+# puts c1.visit(Evaluator.new(Runtime.new))
+
+l1 = WhileLoop.new(r1, b1)
+# puts l1.visit(Translator.new)
+# puts l1.visit(Evaluator.new(Runtime.new))
+
+s1 = StringPrimitive.new("a")
+v1 = Variable.new(s1)
+l2 = ForEachLoop.new(v1, i1, i2, b1)
+# puts l2.visit(Translator.new)
+# puts l2.visit(Evaluator.new(Runtime.new))
+
+fd1 = FunctionDefintion.new(StringPrimitive.new("Something"), [Variable.new(StringPrimitive.new("a")), Variable.new(StringPrimitive.new("b"))], b1)
+# fd2 = FunctionDefintion.new(StringPrimitive.new("Something"), [Variable.new(StringPrimitive.new("a"))], b1)
+# fd3 = FunctionDefintion.new(StringPrimitive.new("Something"), [], b1)
+puts fd1.visit(Translator.new)
+# puts fd1.visit(Evaluator.new(Runtime.new))
+# puts fd2.visit(Translator.new)
+# puts fd2.visit(Evaluator.new(Runtime.new))
+# puts fd3.visit(Translator.new)
+# puts fd3.visit(Evaluator.new(Runtime.new))
