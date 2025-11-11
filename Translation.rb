@@ -131,7 +131,7 @@ class Translator
     # Other
 
     def visit_var(node)
-        "#{node.value}"
+        "#{node.value.visit(self)}"
     end
 
     def visit_assign(node)
@@ -149,5 +149,27 @@ class Translator
             result.push("#{line.visit(self)}\n")
         end
         return result
+    end
+
+    def visit_conditional(node)
+        "if #{node.left.visit(self)}\n#{node.middle.visit(self).join}else\n#{Array(node.right.visit(self)).join}"
+    end
+
+    def visit_while_loop(node)
+        "while #{node.left.visit(self)}\n#{node.right.visit(self).join}"
+    end
+
+    def visit_for_each_loop(node)
+        "for #{node.first.visit(self)} in [#{node.second.visit(self)}, #{node.third.visit(self)}]\n#{node.fourth.visit(self).join}"
+    end
+
+    def visit_function_defintion(node)
+        # if (node.parameters.empty?)
+
+        # elsif (node.parameters.size == 1)
+
+        # else
+        #     "function #{node.name.visit(self)} (#{node.parameters.map(visit(self))})"
+        # end
     end
 end
