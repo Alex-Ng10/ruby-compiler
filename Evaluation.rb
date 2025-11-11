@@ -314,4 +314,43 @@ class Evaluator
             return result
         end
     end
+
+    def visit_conditional(node)
+        left = node.left.visit(self)
+        raise 'Invalid type for conditional' if (!left.is_a?(BooleanPrimitive))
+        middle = node.middle
+        raise 'Invalid type for conditional' if (!middle.is_a?(Block))
+        right = node.right
+        raise 'Invalid type for conditional' if (!right.is_a?(Block) && !right.is_a?(NullPrimitive))
+        if left.value == true
+            return middle.visit(self)
+        else
+            return right.visit(self)
+        end
+    end
+
+    def visit_while_loop(node)
+        left = node.left
+        raise 'Invalid type for while loop' if (!left.visit(self).is_a?(BooleanPrimitive))
+        right = node.right
+        raise 'Invalid type for while loop' if (!right.is_a?(Block))
+        while left.visit(self) == false
+            right.visit(self)
+        end
+    end
+
+    def visit_for_each_loop(node)
+        first = node.first
+        raise 'Invalid type for for each loop' if (!first.is_a?(Variable))
+        second = node.second.visit(self)
+        raise 'Invalid type for for each loop' if (!second.is_a?(IntegerPrimitive))
+        third = node.third.visit(self)
+        raise 'Invalid type for for each loop' if (!third.is_a?(IntegerPrimitive))
+        fourth = node.fourth
+        raise 'Invalid type for for each loop' if (!fourth.is_a?(Block))
+        var = Assignment.new(first, second)
+        while var.visit(self).value <= third.value
+            fourth.visit(self)
+        end
+    end
 end
