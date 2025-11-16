@@ -1,7 +1,8 @@
 class Runtime
-    attr_reader :variables
+    attr_reader :variables, :functions
     def initialize()
         @variables = Hash.new    # stores runtime bindings: name (String) -> Primitive node
+        @functions = Hash.new
     end
 end
 
@@ -352,5 +353,32 @@ class Evaluator
         while var.visit(self).value <= third.value
             fourth.visit(self)
         end
+    end
+
+    def visit_function_defintion(node)
+        name = node.name
+        raise 'Invalid type for function defintion' if (!name.is_a?(StringPrimitive))
+        parameters = node.parameters
+        parameters.each { |parameter| raise 'Invalid type for function defintion' if (!parameter.is_a?(Variable)) }
+        body = node.body
+        raise 'Invalid type for function defintion' if (!body.is_a?(Block))
+        # store evaluated function into runtime
+        runtime.functions[name.value] = {parameters: parameters, body: body}
+        return "I don't understand"
+    end
+
+    def visit_function_call(node)
+        name = node.name
+        raise 'Invalid type for function call' if (!name.is_a?(StringPrimitive))
+        parameters = node.parameters
+        if runtime.functions.key?(name.value)
+            x = 0
+            assign = runtime.functions[name.value][:parameters]
+            while x < assign.length
+                Assignment.new(assign[x].value, parameters[x].value)
+                x += 1
+            end
+        end
+        return runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
     end
 end
