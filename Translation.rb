@@ -164,12 +164,10 @@ class Translator
     end
 
     def visit_function_defintion(node)
-        # if (node.parameters.empty?)
+        "function #{node.name.visit(self)} (#{node.parameters.map{|parameter| parameter.visit(self)}.join(", ")})\n#{node.body.visit(self).join}"
+    end
 
-        # elsif (node.parameters.size == 1)
-
-        # else
-        #     "function #{node.name.visit(self)} (#{node.parameters.map(visit(self))})"
-        # end
+    def visit_function_call(node)
+        "function #{node.name.visit(self)} (#{node.parameters.map{|parameter| parameter.visit(self)}.join(", ")})"
     end
 end
