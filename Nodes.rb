@@ -311,6 +311,12 @@ class FunctionCall
     end
 end
 
+class Return < One
+    def visiti(visitor)
+        visitor.visit_return(self)
+    end
+end
+
 # # Primitive Operations
 
 # p1 = IntegerPrimitive.new(8)

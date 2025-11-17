@@ -170,4 +170,8 @@ class Translator
     def visit_function_call(node)
         "function #{node.name.visit(self)} (#{node.parameters.map{|parameter| parameter.visit(self)}.join(", ")})"
     end
+
+    def visit_return(node)
+        "return #{node.value}"
+    end
 end

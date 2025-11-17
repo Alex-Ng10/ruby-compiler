@@ -379,6 +379,14 @@ class Evaluator
                 x += 1
             end
         end
-        return runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
+        result = catch(:result) do
+            runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
+        end
+        return result
+    end
+
+    def visit_return(node)
+        result = node.value.visit(self)
+        throw :result, result
     end
 end
