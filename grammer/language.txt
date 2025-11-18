@@ -1,3 +1,58 @@
+new
+level0  = level0, level1
+        | level1
+level1  = func level2 level0 level0
+        | level2
+level2  = for level3 in level3 to level3 level0
+        | while level3 level0
+        | if level3 level0 else level0
+        | level3
+level3  = $ level4
+        | level4
+level4  = VAR = level5
+        | level5
+level5  = level5 && level6
+        | level5 || level6
+        | level6
+level6  = level6 == level7
+        | level6 != level7
+        | level6 >  level7
+        | level6 >= level7
+        | level6 <  level7
+        | level6 <= level7
+        | level7
+level7  = level7 &  level8
+        | level7 |  level8
+        | level7 ^  level8
+        | level7 << level8
+        | level7 >> level8
+        | level8
+level8  = level8 +  level9
+        | level8 -  level9
+        | level9
+level9  = level9 *  level10
+        | level9 /  level10
+        | level9 %  level10
+        | level10
+level10 = level10 ** level11
+        | level11
+level11 = [ level12
+        | ] level12
+        |   level12
+level12 = ! level13
+        | @ level13
+        | ~ level13
+        |   level13
+level13 = call level0
+level14 = VAR
+        | INT
+        | FLOAT
+        | BOOLEAN
+        | STRING
+        | NULL
+        | ()
+
+Old
 level0  = level0, level1
         | level1
 level1  = $ level2
