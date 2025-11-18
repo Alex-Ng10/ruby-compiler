@@ -364,7 +364,7 @@ class Evaluator
         raise 'Invalid type for function defintion' if (!body.is_a?(Block))
         # store evaluated function into runtime
         runtime.functions[name.value] = {parameters: parameters, body: body}
-        return "I don't understand"
+        return NullPrimitive.new
     end
 
     def visit_function_call(node)
@@ -380,7 +380,7 @@ class Evaluator
             end
         end
         result = catch(:result) do
-            runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
+            result = runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
         end
         return result
     end
