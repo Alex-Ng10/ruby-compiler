@@ -22,10 +22,8 @@ class Lexer
     end
 
     def has_character
-        if  @i < @source.length
             # check ASCII letters only (A-Z / a-z) and identifiers limited to letters
-            return @i < @source.length && 'a' <= @source[@i] && @source[@i] <= 'z' || 'A' <= @source[@i] && @source[@i] <= 'Z'
-        end
+        return @i < @source.length && (('a' <= @source[@i] && @source[@i] <= 'z') || ('A' <= @source[@i] && @source[@i] <= 'Z'))
     end
 
     def capture
@@ -158,19 +156,34 @@ class Lexer
                 @i += 1
                 emit_token(:string)
             elsif has_character
-                capture
+                # capture all letters
+                while has_character
+                    capture
+                end
                 # special-case single-letter keywords: t, f, n -> true/false/null
-                if @current_token == "t" && !has_character
+                if @current_token == "t"
                     emit_token(:true)
-                elsif @current_token == "f" && !has_character
+                elsif @current_token == "f"
                     emit_token(:false)
-                elsif @current_token == "n" && !has_character
+                elsif @current_token == "n"
                     emit_token(:null)
+                elsif @current_token == "func"
+                    emit_token(:function)
+                elsif @current_token == "for"
+                    emit_token(:for)
+                elsif @current_token == "in"
+                    emit_token(:in)
+                elsif @current_token == "to"
+                    emit_token(:to)
+                elsif @current_token == "while"
+                    emit_token(:while)
+                elsif @current_token == "if"
+                    emit_token(:if)
+                elsif @current_token == "else"
+                    emit_token(:else)
+                elsif @current_token == "call"
+                    emit_token(:call)
                 else
-                    # keep capturing letters
-                    while has_character
-                        capture
-                    end
                     emit_token(:var)
                 end
             elsif has('(')
@@ -181,7 +194,7 @@ class Lexer
                 emit_token(:rightbracket)
             elsif has(' ')
                 @i += 1
-                current_token = ''
+                @current_token = ''
             else
                 capture
                 raise "Unknown token #{@current_token} at index #{@i - 1}"
