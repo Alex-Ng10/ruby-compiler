@@ -355,9 +355,9 @@ class Evaluator
         end
     end
 
-    def visit_function_defintion(node)
+    def visit_function_definition(node)
         name = node.name
-        raise 'Invalid type for function defintion' if (!name.is_a?(StringPrimitive))
+        raise 'Invalid type for function defintion' if (!name.is_a?(Variable))
         parameters = node.parameters
         parameters.each { |parameter| raise 'Invalid type for function defintion' if (!parameter.is_a?(Variable)) }
         body = node.body
