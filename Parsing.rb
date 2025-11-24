@@ -1,5 +1,3 @@
-
-
 class Parser
     attr_reader :i, :tokens
     def initialize(tokens)
@@ -65,33 +63,31 @@ class Parser
         if has(:for)
             advance
             condition = level3
-            if has(:in)
-                advance 
-                start = level3
-                if has(:to)
-                    advance
-                    finish = level3
-                    block = level0
-                    left = ForEachLoop.new(condition, start, finish, block)
-                end
-            end
+            raise "Missing 'in' in for loop at index #{@i}" unless has(:in)
+            advance 
+            start = level3
+            raise "Missing 'to' in for loop at index #{@i}" unless has(:to)
+            advance
+            finish = level3
+            block = level0
+            left = ForEachLoop.new(condition, start, finish, block)
         elsif has(:while)
             advance
             condition = level3
-            if has(:then)
-                advance
-                block = level0
-                left = WhileLoop.new(condition, block)
-            end
+            raise "Missing 'then' in while loop at index #{@i}" unless has(:then)
+            advance
+            block = level0
+            left = WhileLoop.new(condition, block)
         elsif has(:if)
             advance
             condition = level3
             block1 = level0
+            block2 = NullPrimitive.new
             if has(:else)
                 advance
                 block2 = level0
-                left = Conditional.new(condition, block1, block2)
             end
+            left = Conditional.new(condition, block1, block2)
         end
         left
     end
