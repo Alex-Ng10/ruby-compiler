@@ -169,6 +169,8 @@ class Lexer
                     emit_token(:null)
                 elsif @current_token == "func"
                     emit_token(:function)
+                elsif @current_token == "end"
+                    emit_token(:end)
                 elsif @current_token == "for"
                     emit_token(:for)
                 elsif @current_token == "in"
