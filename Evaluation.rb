@@ -350,8 +350,22 @@ class Evaluator
         fourth = node.fourth
         raise 'Invalid type for for each loop' if (!fourth.is_a?(Block))
         var = Assignment.new(first, second)
-        while var.visit(self).value <= third.value
+        if second.value < third.value
+                third = IntegerPrimitive.new(third.value + 1)
+        elsif second.value > third.value
+                third = IntegerPrimitive.new(third.value - 1)
+        end
+        while var.visit(self).value != third.value
             fourth.visit(self)
+            if second.value < third.value
+                second = IntegerPrimitive.new(second.value + 1)
+                var = Assignment.new(first, second)
+            elsif second.value > third.value
+                second = IntegerPrimitive.new(second.value - 1)
+                var = Assignment.new(first, second)
+            else
+                break
+            end
         end
     end
 
@@ -369,7 +383,7 @@ class Evaluator
 
     def visit_function_call(node)
         name = node.name
-        raise 'Invalid type for function call' if (!name.is_a?(StringPrimitive))
+        raise 'Invalid type for function call' if (!name.is_a?(Variable))
         parameters = node.parameters
         if runtime.functions.key?(name.value)
             x = 0
