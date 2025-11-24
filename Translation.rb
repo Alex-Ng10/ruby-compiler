@@ -131,7 +131,7 @@ class Translator
     # Other
 
     def visit_var(node)
-        "#{node.value.visit(self)}"
+        "#{node.value}"
     end
 
     def visit_assign(node)
@@ -163,7 +163,7 @@ class Translator
         "for #{node.first.visit(self)} in [#{node.second.visit(self)}, #{node.third.visit(self)}]\n#{node.fourth.visit(self).join}"
     end
 
-    def visit_function_defintion(node)
+    def visit_function_definition(node)
         "function #{node.name.visit(self)} (#{node.parameters.map{|parameter| parameter.visit(self)}.join(", ")})\n#{node.body.visit(self).join}"
     end
 
