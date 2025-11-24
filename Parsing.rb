@@ -73,8 +73,11 @@ class Parser
         elsif has(:while)
             advance
             condition = level3
-            block = level0
-            left = WhileLoop.new(condition, block)
+            if has(:then)
+                advance
+                block = level0
+                left = WhileLoop.new(condition, block)
+            end
         elsif has(:if)
             advance
             condition = level3
