@@ -265,7 +265,7 @@ class Block
     end
 end
 
-class Conditional < Three
+class Conditional
     def initialize(left, middle, right = NullPrimitive.new)
         @left = left
         @middle = middle
@@ -288,7 +288,7 @@ class ForEachLoop < Four
     end
 end
 
-class FunctionDefintion
+class FunctionDefinition
     attr_reader :name, :parameters, :body
     def initialize(name, parameters, body)
         @name = name
@@ -296,7 +296,7 @@ class FunctionDefintion
         @body = body
     end
     def visit(visitor)
-        visitor.visit_function_defintion(self)
+        visitor.visit_function_definition(self)
     end
 end
 
@@ -312,7 +312,7 @@ class FunctionCall
 end
 
 class Return < One
-    def visiti(visitor)
+    def visit(visitor)
         visitor.visit_return(self)
     end
 end
@@ -541,12 +541,12 @@ end
 # puts d18.visit(Translator.new)
 # puts d18.visit(Evaluator.new(Runtime.new))
 
-# l1 = Lexer.new(gets.chomp)
-# # puts "Here are the tokens: #{l1.tokens}"
-# p1 = Parser.new(l1.tokens)
-# puts r1 = p1.parse
+l1 = Lexer.new(gets.chomp)
+puts "Here are the tokens: #{l1.tokens}"
+p1 = Parser.new(l1.tokens)
+puts r1 = p1.parse
 # puts r1.visit(Translator.new)
-# puts r1.visit(Evaluator.new(Runtime.new))
+puts r1.visit(Evaluator.new(Runtime.new))
 
 # if __FILE__ == $0                           # Guard necessary to use mystery files
 #   l1 = Lexer.new(gets.chomp)             
@@ -562,12 +562,12 @@ end
 
 # Tests
 
-i1 = IntegerPrimitive.new(8)
-i2 = IntegerPrimitive.new(8)
-r1 = EqualsOperation.new(i1, i2)
-b1 = Block.new([IntegerPrimitive.new(3), IntegerPrimitive.new(2), IntegerPrimitive.new(1)])
+# i1 = IntegerPrimitive.new(8)
+# i2 = IntegerPrimitive.new(8)
+# r1 = EqualsOperation.new(i1, i2)
+# b1 = Block.new([IntegerPrimitive.new(3), IntegerPrimitive.new(2), IntegerPrimitive.new(1)])
 # puts b1.visit(Translator.new)
-b2 = Block.new([IntegerPrimitive.new(1), IntegerPrimitive.new(2), IntegerPrimitive.new(3)])
+# b2 = Block.new([IntegerPrimitive.new(1), IntegerPrimitive.new(2), IntegerPrimitive.new(3)])
 # puts b2.visit(Translator.new)
 # c1 = Conditional.new(r1, b1, b2)
 # puts c1.visit(Translator.new)
@@ -576,19 +576,19 @@ b2 = Block.new([IntegerPrimitive.new(1), IntegerPrimitive.new(2), IntegerPrimiti
 # puts c1.visit(Translator.new)
 # puts c1.visit(Evaluator.new(Runtime.new))
 
-l1 = WhileLoop.new(r1, b1)
+# l1 = WhileLoop.new(r1, b1)
 # puts l1.visit(Translator.new)
 # puts l1.visit(Evaluator.new(Runtime.new))
 
-s1 = StringPrimitive.new("a")
-v1 = Variable.new(s1)
-l2 = ForEachLoop.new(v1, i1, i2, b1)
+# s1 = StringPrimitive.new("a")
+# v1 = Variable.new(s1)
+# l2 = ForEachLoop.new(v1, i1, i2, b1)
 # puts l2.visit(Translator.new)
 # puts l2.visit(Evaluator.new(Runtime.new))
 
-fd1 = FunctionDefintion.new(StringPrimitive.new("Something"), [Variable.new(StringPrimitive.new("a")), Variable.new(StringPrimitive.new("b"))], b1)
-fd2 = FunctionDefintion.new(StringPrimitive.new("Something"), [Variable.new(StringPrimitive.new("a"))], b1)
-fd3 = FunctionDefintion.new(StringPrimitive.new("Something"), [], b1)
+# fd1 = FunctionDefintion.new(StringPrimitive.new("Something"), [Variable.new(StringPrimitive.new("a")), Variable.new(StringPrimitive.new("b"))], b1)
+# fd2 = FunctionDefintion.new(StringPrimitive.new("Something"), [Variable.new(StringPrimitive.new("a"))], b1)
+# fd3 = FunctionDefintion.new(StringPrimitive.new("Something"), [], b1)
 # puts fd1.visit(Translator.new)
 # puts fd1.visit(Evaluator.new(Runtime.new))
 # puts fd2.visit(Translator.new)
@@ -596,9 +596,9 @@ fd3 = FunctionDefintion.new(StringPrimitive.new("Something"), [], b1)
 # puts fd3.visit(Translator.new)
 # puts fd3.visit(Evaluator.new(Runtime.new))
 
-fc1 = FunctionCall.new(StringPrimitive.new("Something"), [IntegerPrimitive.new(1), IntegerPrimitive.new(2)])
-fc2 = FunctionCall.new(StringPrimitive.new("Something"), [IntegerPrimitive.new(1)])
-fc3 = FunctionCall.new(StringPrimitive.new("Something"), [])
+# fc1 = FunctionCall.new(StringPrimitive.new("Something"), [IntegerPrimitive.new(1), IntegerPrimitive.new(2)])
+# fc2 = FunctionCall.new(StringPrimitive.new("Something"), [IntegerPrimitive.new(1)])
+# fc3 = FunctionCall.new(StringPrimitive.new("Something"), [])
 # puts fc1.visit(Translator.new)
 # puts fc1.visit(Evaluator.new(Runtime.new))
 # puts fc2.visit(Translator.new)
@@ -606,6 +606,6 @@ fc3 = FunctionCall.new(StringPrimitive.new("Something"), [])
 # puts fc3.visit(Translator.new)
 # puts fc3.visit(Evaluator.new(Runtime.new))
 
-t1 = Block.new([fd1, fc1])
+# t1 = Block.new([fd1, fc1])
 # puts t1.visit(Translator.new)
-puts t1.visit(Evaluator.new(Runtime.new))
+# puts t1.visit(Evaluator.new(Runtime.new))
