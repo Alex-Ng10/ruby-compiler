@@ -1,7 +1,7 @@
 new
 level0  = level0, level1
         | level1
-level1  = func level2 (level0) level0
+level1  = func level2 (level0) level0 end
         | level2
 level2  = for level3 in level3 to level3 level0
         | while level3 level0
