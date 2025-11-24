@@ -266,6 +266,7 @@ class Block
 end
 
 class Conditional
+    attr_reader :left, :middle, :right
     def initialize(left, middle, right = NullPrimitive.new)
         @left = left
         @middle = middle
