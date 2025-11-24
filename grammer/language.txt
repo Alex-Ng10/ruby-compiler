@@ -1,7 +1,7 @@
 new
 level0  = level0, level1
         | level1
-level1  = func level2 level0 level0
+level1  = func level2 (level0) level0
         | level2
 level2  = for level3 in level3 to level3 level0
         | while level3 level0
@@ -36,14 +36,15 @@ level9  = level9 *  level10
         | level10
 level10 = level10 ** level11
         | level11
-level11 = [ level12
-        | ] level12
+level11 = float level12
+        | int level12
         |   level12
 level12 = ! level13
         | @ level13
         | ~ level13
         |   level13
-level13 = call level0
+level13 = call level14 (level0)
+        | level14
 level14 = VAR
         | INT
         | FLOAT
