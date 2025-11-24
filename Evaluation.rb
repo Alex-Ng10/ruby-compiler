@@ -335,7 +335,7 @@ class Evaluator
         raise 'Invalid type for while loop' if (!left.visit(self).is_a?(BooleanPrimitive))
         right = node.right
         raise 'Invalid type for while loop' if (!right.is_a?(Block))
-        while left.visit(self) == false
+        while left.visit(self).value == false
             right.visit(self)
         end
     end
