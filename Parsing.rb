@@ -49,12 +49,17 @@ class Parser
                 raise "Unclosed parameters at #{@i}" if !has(:rightbracket)
                 advance
                 block = level0
+                raise "Unclosed function at #{@i}" if !has(:end)
+                advance
                 left = FunctionDefinition.new(name, params, block)
+            else
+                raise "No parameters for function at #{@i}"
             end
         end
         left
     end
 
+    # add raises for level2
     def level2
         left = level3
         if has(:for)
@@ -338,10 +343,21 @@ class Parser
 
     def level13
         left = level14
+        # func hi (a, b) "hello", "hi" end, call hi (a = 0, b=0)
         if has(:call)
             advance
-            params = level0
-            left = FunctionCall.new(left, params)
+            name = level2
+            if has(:leftbracket)
+                params = []
+                while true
+                    advance
+                    params.push(level2)
+                    break if !has(:comma)
+                end
+                raise "Unclosed parameters at #{@i}" if !has(:rightbracket)
+                advance
+                left = FunctionCall.new(name, params)
+            end
         end
         left
     end
