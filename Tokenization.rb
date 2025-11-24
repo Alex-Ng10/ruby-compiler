@@ -177,6 +177,8 @@ class Lexer
                     emit_token(:to)
                 elsif @current_token == "while"
                     emit_token(:while)
+                elsif @current_token == "then"
+                    emit_token(:then)
                 elsif @current_token == "if"
                     emit_token(:if)
                 elsif @current_token == "else"
