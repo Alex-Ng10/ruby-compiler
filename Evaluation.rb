@@ -320,9 +320,7 @@ class Evaluator
         left = node.left.visit(self)
         raise 'Invalid type for conditional' if (!left.is_a?(BooleanPrimitive))
         middle = node.middle
-        raise 'Invalid type for conditional' if (!middle.is_a?(Block))
         right = node.right
-        raise 'Invalid type for conditional' if (!right.is_a?(Block) && !right.is_a?(NullPrimitive))
         if left.value == true
             return middle.visit(self)
         else
@@ -334,7 +332,6 @@ class Evaluator
         left = node.left
         raise 'Invalid type for while loop' if (!left.visit(self).is_a?(BooleanPrimitive))
         right = node.right
-        raise 'Invalid type for while loop' if (!right.is_a?(Block))
         while left.visit(self).value == false
             right.visit(self)
         end
@@ -348,7 +345,6 @@ class Evaluator
         third = node.third.visit(self)
         raise 'Invalid type for for each loop' if (!third.is_a?(IntegerPrimitive))
         fourth = node.fourth
-        raise 'Invalid type for for each loop' if (!fourth.is_a?(Block))
         var = Assignment.new(first, second)
         if second.value < third.value
                 third = IntegerPrimitive.new(third.value + 1)
@@ -389,7 +385,7 @@ class Evaluator
             x = 0
             assign = runtime.functions[name.value][:parameters]
             while x < assign.length
-                Assignment.new(assign[x].value, parameters[x].value)
+                Assignment.new(assign[x], parameters[x]).visit(self)
                 x += 1
             end
         end
