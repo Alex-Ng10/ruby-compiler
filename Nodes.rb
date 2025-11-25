@@ -546,7 +546,7 @@ l1 = Lexer.new(gets.chomp)
 puts "Here are the tokens: #{l1.tokens}"
 p1 = Parser.new(l1.tokens)
 puts r1 = p1.parse
-# puts r1.visit(Translator.new)
+puts r1.visit(Translator.new)
 puts r1.visit(Evaluator.new(Runtime.new))
 
 # if __FILE__ == $0                           # Guard necessary to use mystery files
