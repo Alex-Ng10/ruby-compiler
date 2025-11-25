@@ -342,12 +342,12 @@ class Parser
         # func hi (a, b) "hello", "hi" end, call hi (a = 0, b=0)
         if has(:call)
             advance
-            name = level2
+            name = level4
             if has(:leftbracket)
                 params = []
                 while true
                     advance
-                    params.push(level2)
+                    params.push(level4)
                     break if !has(:comma)
                 end
                 raise "Unclosed parameters at #{@i}" if !has(:rightbracket)
@@ -359,6 +359,16 @@ class Parser
     end
 
     def level14
+        left = level15
+        if has(:return)
+            advance
+            value = level4
+            left = Return.new(value)
+        end
+        left
+    end
+
+    def level15
         if has(:var)
             value = Variable.new(advance.text)
         elsif has(:int)
