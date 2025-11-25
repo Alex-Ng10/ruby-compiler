@@ -152,15 +152,20 @@ class Translator
     end
 
     def visit_conditional(node)
-        "if #{node.left.visit(self)}\n#{node.middle.visit(self).join}else\n#{Array(node.right.visit(self)).join}"
+        if Array(node.middle.visit(self)).length > 1
+            n = ""
+        else
+            n = "\n"
+        end
+        "if #{node.left.visit(self)}\n#{Array(node.middle.visit(self)).join}" + n + "else\n#{Array(node.right.visit(self)).join}"
     end
 
     def visit_while_loop(node)
-        "while #{node.left.visit(self)}\n#{node.right.visit(self).join}"
+        "while #{node.left.visit(self)}\n#{Array(node.right.visit(self)).join}"
     end
 
     def visit_for_each_loop(node)
-        "for #{node.first.visit(self)} in [#{node.second.visit(self)}, #{node.third.visit(self)}]\n#{node.fourth.visit(self).join}"
+        "for #{node.first.visit(self)} in [#{node.second.visit(self)} to #{node.third.visit(self)}]\n#{Array(node.fourth.visit(self)).join}"
     end
 
     def visit_function_definition(node)
