@@ -250,6 +250,7 @@ class Interface
         when String
           input << key
           param.addstr(key)
+          param.setpos(index + 1, x + input.length)
         else
           # ignore other special keys
         end
@@ -338,13 +339,23 @@ class Interface
     @actual_values = Array.new(@parameters.length)
 
     begin
-      # Normalize editor text:
-      # - drop CRs
-      # - replace Unicode minus with ASCII '-'
-      # - split lines, trim, drop empties
-      # - join with commas (lexer doesn’t treat newlines as separators)
-      source = @user_code.to_s.gsub("\r", "").tr("\u2212", "-")
-      source = source.lines.map { |l| l.strip }.reject(&:empty?).join(", ")
+      # FIX: Do NOT add a comma if the next line starts with 'end' or 'else'
+      lines = @user_code.to_s.gsub("\r", "").tr("\u2212", "-").lines.map { |l| l.strip }.reject(&:empty?)
+      source = ""
+      
+      lines.each_with_index do |line, i|
+        source += line
+        if i < lines.length - 1
+            next_line = lines[i+1]
+            # If the next line continues a block structure, use a space instead of a comma
+            if next_line.start_with?("end") || next_line.start_with?("else")
+                source += " "
+            else
+                source += ", "
+            end
+        end
+      end
+
       raise "No code entered" if source.empty?
 
       @parameters.each_with_index do |param_set, test_index|
@@ -456,3 +467,10 @@ if __FILE__ == $0
   end
   Interface.new(path).start
 end
+
+# FIND THIS BLOCK AND WRAP IT OR DELETE IT
+l1 = Lexer.new(gets.chomp)
+puts "Here are the tokens: #{l1.tokens}"
+p1 = Parser.new(l1.tokens)
+puts r1 = p1.parse
+puts r1.visit(Evaluator.new(Runtime.new))

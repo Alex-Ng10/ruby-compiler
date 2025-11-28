@@ -330,69 +330,79 @@ class Evaluator
 
     def visit_while_loop(node)
         left = node.left
-        raise 'Invalid type for while loop' if (!left.visit(self).is_a?(BooleanPrimitive))
-        right = node.right
-        while left.visit(self).value == false
-            right.visit(self)
+        # FIX: Run while the condition is TRUE, not false
+        while left.visit(self).value == true
+            node.right.visit(self)
         end
+        return NullPrimitive.new
     end
 
     def visit_for_each_loop(node)
-        first = node.first
-        raise 'Invalid type for for each loop' if (!first.is_a?(Variable))
-        second = node.second.visit(self)
-        raise 'Invalid type for for each loop' if (!second.is_a?(IntegerPrimitive))
-        third = node.third.visit(self)
-        raise 'Invalid type for for each loop' if (!third.is_a?(IntegerPrimitive))
-        fourth = node.fourth
-        var = Assignment.new(first, second)
-        if second.value < third.value
-                third = IntegerPrimitive.new(third.value + 1)
-        elsif second.value > third.value
-                third = IntegerPrimitive.new(third.value - 1)
+        var_node = node.first
+        raise 'Invalid loop variable' unless var_node.is_a?(Variable)
+        
+        start_val = node.second.visit(self)
+        raise 'Invalid start value' unless start_val.is_a?(IntegerPrimitive)
+        
+        end_val = node.third.visit(self)
+        raise 'Invalid end value' unless end_val.is_a?(IntegerPrimitive)
+        
+        block = node.fourth
+        
+        (start_val.value..end_val.value).each do |i|
+            # Update loop variable
+            runtime.variables[var_node.value] = IntegerPrimitive.new(i)
+            # Execute block
+            block.visit(self)
         end
-        while var.visit(self).value != third.value
-            fourth.visit(self)
-            if second.value < third.value
-                second = IntegerPrimitive.new(second.value + 1)
-                var = Assignment.new(first, second)
-            elsif second.value > third.value
-                second = IntegerPrimitive.new(second.value - 1)
-                var = Assignment.new(first, second)
-            else
-                break
-            end
-        end
+        
+        return NullPrimitive.new
     end
 
     def visit_function_definition(node)
-        name = node.name
-        raise 'Invalid type for function defintion' if (!name.is_a?(Variable))
-        parameters = node.parameters
-        parameters.each { |parameter| raise 'Invalid type for function defintion' if (!parameter.is_a?(Variable)) }
-        body = node.body
-        raise 'Invalid type for function defintion' if (!body.is_a?(Block))
-        # store evaluated function into runtime
-        runtime.functions[name.value] = {parameters: parameters, body: body}
+        # Store the function definition in the runtime
+        # We store the parameters and the body
+        runtime.functions[node.name.value] = {
+            parameters: node.parameters,
+            body: node.body
+        }
         return NullPrimitive.new
     end
 
     def visit_function_call(node)
         name = node.name
         raise 'Invalid type for function call' if (!name.is_a?(Variable))
-        parameters = node.parameters
+        
         if runtime.functions.key?(name.value)
-            x = 0
-            assign = runtime.functions[name.value][:parameters]
-            while x < assign.length
-                Assignment.new(assign[x], parameters[x]).visit(self)
-                x += 1
+            func_def = runtime.functions[name.value]
+            params_def = func_def[:parameters]
+            args_val = node.parameters
+            
+            # 1. Create a NEW Runtime for the function (Scope Isolation)
+            func_runtime = Runtime.new
+            # Copy existing functions so we can call them recursively
+            func_runtime.functions.merge!(runtime.functions)
+            
+            # 2. Bind parameters in the NEW runtime
+            # We evaluate arguments in the CURRENT scope (self), but store them in the NEW scope
+            params_def.each_with_index do |param_var, index|
+                if index < args_val.length
+                    val = args_val[index].visit(self) # Evaluate arg
+                    func_runtime.variables[param_var.value] = val # Store in function scope
+                end
             end
+            
+            # 3. Execute body using a NEW Evaluator attached to the function runtime
+            func_evaluator = Evaluator.new(func_runtime)
+            
+            result = catch(:result) do
+                func_def[:body].visit(func_evaluator)
+                NullPrimitive.new
+            end
+            return result
+        else
+            raise "Function #{name.value} not defined"
         end
-        result = catch(:result) do
-            result = runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
-        end
-        return result
     end
 
     def visit_return(node)
