@@ -347,8 +347,12 @@ class Interface
         source += line
         if i < lines.length - 1
             next_line = lines[i+1]
-            # If the next line continues a block structure, use a space instead of a comma
-            if next_line.start_with?("end") || next_line.start_with?("else")
+            
+            # Check if current line starts a control flow block
+            is_control_flow = line.start_with?("if", "while", "for", "function", "else")
+
+            # If the next line continues a block structure OR current is control flow, use space
+            if next_line.start_with?("end") || next_line.start_with?("else") || is_control_flow
                 source += " "
             else
                 source += ", "
@@ -467,10 +471,3 @@ if __FILE__ == $0
   end
   Interface.new(path).start
 end
-
-# FIND THIS BLOCK AND WRAP IT OR DELETE IT
-l1 = Lexer.new(gets.chomp)
-puts "Here are the tokens: #{l1.tokens}"
-p1 = Parser.new(l1.tokens)
-puts r1 = p1.parse
-puts r1.visit(Evaluator.new(Runtime.new))

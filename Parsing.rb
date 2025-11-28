@@ -391,6 +391,8 @@ class Parser
             value = level5
             raise "Unclosed parathensis at #{@i}" if !has(:rightbracket)
             advance
+        else
+            raise "Unexpected token #{@tokens[@i].type} at index #{@i}"
         end
         value
     end

@@ -161,11 +161,11 @@ class Lexer
                     capture
                 end
                 # special-case single-letter keywords: t, f, n -> true/false/null
-                if @current_token == "t"
+                if @current_token == "t" || @current_token == "true"
                     emit_token(:true)
-                elsif @current_token == "f"
+                elsif @current_token == "f" || @current_token == "false"
                     emit_token(:false)
-                elsif @current_token == "n"
+                elsif @current_token == "n" || @current_token == "null"
                     emit_token(:null)
                 elsif @current_token == "func"
                     emit_token(:function)
