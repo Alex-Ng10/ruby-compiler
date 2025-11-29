@@ -167,11 +167,11 @@ class Lexer
                     emit_token(:false)
                 elsif @current_token == "n" || @current_token == "null"
                     emit_token(:null)
-                elsif @current_token == "func"
+                elsif @current_token == "func" || @current_token == "function"
                     emit_token(:function)
                 elsif @current_token == "end"
                     emit_token(:end)
-                elsif @current_token == "ret"
+                elsif @current_token == "ret" || @current_token == "return"
                     emit_token(:return) 
                 elsif @current_token == "for"
                     emit_token(:for)

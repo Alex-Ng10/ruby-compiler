@@ -349,7 +349,7 @@ class Interface
             next_line = lines[i+1]
             
             # Check if current line starts a control flow block
-            is_control_flow = line.start_with?("if", "while", "for", "function", "else")
+            is_control_flow = line.start_with?("if", "while", "for", "function", "func", "else")
 
             # If the next line continues a block structure OR current is control flow, use space
             if next_line.start_with?("end") || next_line.start_with?("else") || is_control_flow

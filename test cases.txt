@@ -7,25 +7,37 @@ y = x * 3
 $ y
 y + 1
 
+----------------------
+
 mystery1:
 $ (a + b)
 (a + b) / 2
+
+----------------------
 
 mystery2:
 $ a + b + c
 phrase = a + b + c
 phrase + "!?"
 
+----------------------
+
 mystery3:
 $ (a + b)
 (a + b) / 2.0
+
+----------------------
 
 mystery4:
 $ a * b
 a * b
 
+----------------------
+
 Hello world:
 $ "Hello World"
+
+----------------------
 
 Mixed program: prints and returns a value: 
 $ "starting"
@@ -33,3 +45,35 @@ x = 10
 y = x * 3
 $ y
 y + 1
+
+----------------------
+Test of loop for milestone 4
+
+----------------------
+
+But also: 
+
+function avg(x, y)
+  return (x + y) / 2.0
+end
+
+call avg(a, b)
+
+-----------------------
+
+if a > b
+  $ (a + b) / 2.0
+  (a + b) / 2.0
+else
+  $ (b + a) / 2.0
+  (a + b) / 2.0
+end
+
+-----------------------
+
+i = 0
+while i < 3 then
+  $ i
+  i = i + 1
+end
+(a + b) / 2.0

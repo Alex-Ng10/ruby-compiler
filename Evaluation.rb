@@ -37,10 +37,18 @@ class Evaluator
     # Arithmetic Operations
     # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
     def visit_arithm_add(node)
-        left = node.left.visit(self)   # evaluate left subtree -> returns a Primitive node
-        raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+        left = node.left.visit(self)
         right = node.right.visit(self)
+
+        # Allow string concatenation
+        if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+            return StringPrimitive.new(left.value + right.value)
+        end
+
+        # Existing logic for numbers
+        raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+        
         result = left.value + right.value  
         if result.class == Integer            # distinguish integer vs float result
             return IntegerPrimitive.new(result)
@@ -350,6 +358,50 @@ class Evaluator
         block = node.fourth
         
         (start_val.value..end_val.value).each do |i|
+            # Arithmetic Operations
+            # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
+            def visit_arithm_add(node)
+                left = node.left.visit(self)
+                right = node.right.visit(self)
+        
+                # Allow string concatenation
+                if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+                    return StringPrimitive.new(left.value + right.value)
+                end
+        
+                # Existing logic for numbers
+                raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+                raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+                
+                result = left.value + right.value  
+                if result.class == Integer            # distinguish integer vs float result
+                    return IntegerPrimitive.new(result)
+                else 
+                    return FloatPrimitive.new(result)
+                end
+            end
+            # Arithmetic Operations
+            # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
+            def visit_arithm_add(node)
+                left = node.left.visit(self)
+                right = node.right.visit(self)
+        
+                # Allow string concatenation
+                if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+                    return StringPrimitive.new(left.value + right.value)
+                end
+        
+                # Existing logic for numbers
+                raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+                raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+                
+                result = left.value + right.value  
+                if result.class == Integer
+                    return IntegerPrimitive.new(result)
+                else 
+                    return FloatPrimitive.new(result)
+                end
+            end
             # Update loop variable
             runtime.variables[var_node.value] = IntegerPrimitive.new(i)
             # Execute block
