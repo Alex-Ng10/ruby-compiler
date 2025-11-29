@@ -47,11 +47,10 @@ $ y
 y + 1
 
 ----------------------
+
 Test of loop for milestone 4
 
 ----------------------
-
-But also: 
 
 function avg(x, y)
   return (x + y) / 2.0
