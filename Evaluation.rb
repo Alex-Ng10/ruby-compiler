@@ -37,10 +37,18 @@ class Evaluator
     # Arithmetic Operations
     # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
     def visit_arithm_add(node)
-        left = node.left.visit(self)   # evaluate left subtree -> returns a Primitive node
-        raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+        left = node.left.visit(self)
         right = node.right.visit(self)
+
+        # Allow string concatenation
+        if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+            return StringPrimitive.new(left.value + right.value)
+        end
+
+        # Existing logic for numbers
+        raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
         raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+        
         result = left.value + right.value  
         if result.class == Integer            # distinguish integer vs float result
             return IntegerPrimitive.new(result)
@@ -297,8 +305,8 @@ class Evaluator
     end
 
     def visit_print(node)
-        puts node.value.visit(self).value   # print raw value of evaluated expression
-        return NullPrimitive.new            # printing returns null to the language
+        puts node.value.visit(self).value   
+        return NullPrimitive.new            
     end
 
     def visit_block(block)
@@ -310,7 +318,6 @@ class Evaluator
             block.array.each do |line|
                 last = line.visit(self)
             end
-            # If last is a node, extract its .value, otherwise it's already a raw value
             result = last.respond_to?(:visit) ? last.value : last
             return result
         end
@@ -330,69 +337,118 @@ class Evaluator
 
     def visit_while_loop(node)
         left = node.left
-        raise 'Invalid type for while loop' if (!left.visit(self).is_a?(BooleanPrimitive))
-        right = node.right
-        while left.visit(self).value == false
-            right.visit(self)
+        # FIX: Run while the condition is TRUE, not false
+        while left.visit(self).value == true
+            node.right.visit(self)
         end
+        return NullPrimitive.new
     end
 
     def visit_for_each_loop(node)
-        first = node.first
-        raise 'Invalid type for for each loop' if (!first.is_a?(Variable))
-        second = node.second.visit(self)
-        raise 'Invalid type for for each loop' if (!second.is_a?(IntegerPrimitive))
-        third = node.third.visit(self)
-        raise 'Invalid type for for each loop' if (!third.is_a?(IntegerPrimitive))
-        fourth = node.fourth
-        var = Assignment.new(first, second)
-        if second.value < third.value
-                third = IntegerPrimitive.new(third.value + 1)
-        elsif second.value > third.value
-                third = IntegerPrimitive.new(third.value - 1)
-        end
-        while var.visit(self).value != third.value
-            fourth.visit(self)
-            if second.value < third.value
-                second = IntegerPrimitive.new(second.value + 1)
-                var = Assignment.new(first, second)
-            elsif second.value > third.value
-                second = IntegerPrimitive.new(second.value - 1)
-                var = Assignment.new(first, second)
-            else
-                break
+        var_node = node.first
+        raise 'Invalid loop variable' unless var_node.is_a?(Variable)
+        
+        start_val = node.second.visit(self)
+        raise 'Invalid start value' unless start_val.is_a?(IntegerPrimitive)
+        
+        end_val = node.third.visit(self)
+        raise 'Invalid end value' unless end_val.is_a?(IntegerPrimitive)
+        
+        block = node.fourth
+        
+        (start_val.value..end_val.value).each do |i|
+            # Arithmetic Operations
+            # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
+            def visit_arithm_add(node)
+                left = node.left.visit(self)
+                right = node.right.visit(self)
+        
+                # Allow string concatenation
+                if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+                    return StringPrimitive.new(left.value + right.value)
+                end
+        
+                # Existing logic for numbers
+                raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+                raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+                
+                result = left.value + right.value  
+                if result.class == Integer            # distinguish integer vs float result
+                    return IntegerPrimitive.new(result)
+                else 
+                    return FloatPrimitive.new(result)
+                end
             end
+            # Arithmetic Operations
+            # Note for milestone video: I had to change the concatenation of the Evaluation Add so that it would accept strings. 
+            def visit_arithm_add(node)
+                left = node.left.visit(self)
+                right = node.right.visit(self)
+        
+                # Allow string concatenation
+                if left.is_a?(StringPrimitive) && right.is_a?(StringPrimitive)
+                    return StringPrimitive.new(left.value + right.value)
+                end
+        
+                # Existing logic for numbers
+                raise 'Invalid type for add' if (!left.is_a?(IntegerPrimitive) && !left.is_a?(FloatPrimitive))
+                raise 'Invalid type for add' if (!right.is_a?(IntegerPrimitive) && !right.is_a?(FloatPrimitive))
+                
+                result = left.value + right.value  
+                if result.class == Integer
+                    return IntegerPrimitive.new(result)
+                else 
+                    return FloatPrimitive.new(result)
+                end
+            end
+            # Update loop variable
+            runtime.variables[var_node.value] = IntegerPrimitive.new(i)
+            # Execute block
+            block.visit(self)
         end
+        
+        return NullPrimitive.new
     end
 
     def visit_function_definition(node)
-        name = node.name
-        raise 'Invalid type for function defintion' if (!name.is_a?(Variable))
-        parameters = node.parameters
-        parameters.each { |parameter| raise 'Invalid type for function defintion' if (!parameter.is_a?(Variable)) }
-        body = node.body
-        raise 'Invalid type for function defintion' if (!body.is_a?(Block))
-        # store evaluated function into runtime
-        runtime.functions[name.value] = {parameters: parameters, body: body}
+        # Store the function definition in the runtime
+        # We store the parameters and the body
+        runtime.functions[node.name.value] = {
+            parameters: node.parameters,
+            body: node.body
+        }
         return NullPrimitive.new
     end
 
     def visit_function_call(node)
         name = node.name
         raise 'Invalid type for function call' if (!name.is_a?(Variable))
-        parameters = node.parameters
+        
         if runtime.functions.key?(name.value)
-            x = 0
-            assign = runtime.functions[name.value][:parameters]
-            while x < assign.length
-                Assignment.new(assign[x], parameters[x]).visit(self)
-                x += 1
+            func_def = runtime.functions[name.value]
+            params_def = func_def[:parameters]
+            args_val = node.parameters
+            
+            func_runtime = Runtime.new
+            func_runtime.functions.merge!(runtime.functions)
+            
+            params_def.each_with_index do |param_var, index|
+                if index < args_val.length
+                    val = args_val[index].visit(self) # Evaluate arg
+                    func_runtime.variables[param_var.value] = val # Store in function scope
+                end
             end
+            
+            func_evaluator = Evaluator.new(func_runtime)
+            
+            result = catch(:result) do
+                func_def[:body].visit(func_evaluator)
+                NullPrimitive.new
+            end
+            return result
+        else
+            raise "Function #{name.value} not defined"
         end
-        result = catch(:result) do
-            result = runtime.functions.key?(name.value) ? runtime.functions.fetch(name.value)[:body].visit(self) : NullPrimitive.new
-        end
-        return result
     end
 
     def visit_return(node)

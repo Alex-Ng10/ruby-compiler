@@ -176,7 +176,8 @@ class Translator
         "function #{node.name.visit(self)} (#{node.parameters.map{|parameter| parameter.visit(self)}.join(", ")})"
     end
 
+    # change for milestone 4
     def visit_return(node)
-        "return #{node.value}"
+        "return #{node.value.visit(self)}"
     end
 end

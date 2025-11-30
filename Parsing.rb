@@ -33,7 +33,7 @@ class Parser
     end
 
     def level1
-        left = level2
+        # Check for function definition BEFORE calling level2
         if has(:function)
             advance
             name = level2
@@ -53,13 +53,15 @@ class Parser
             else
                 raise "No parameters for function at #{@i}"
             end
+        else
+            left = level2
         end
         left
     end
 
     # add raises for level2
     def level2
-        left = level3
+        # Check for control flow keywords BEFORE calling level3
         if has(:for)
             advance
             condition = level3
@@ -88,19 +90,19 @@ class Parser
                 block2 = level0
             end
             left = Conditional.new(condition, block1, block2)
+        else
+            left = level3
         end
         left
     end
 
     def level3
-        left = level4
-        i = false
-        while has(:print)
-            raise "More then one print at index #{tokens[@i].start}" if i
+        if has(:print)
             advance
             right = level4
             left = Print.new(right)
-            i = true
+        else
+            left = level4
         end
         left 
     end
@@ -313,33 +315,26 @@ class Parser
     end
 
     def level12
-        left = level13
-        while true 
-            if has(:not)
-                advance
-                right = level12
-                raise "Missing operand right of not at index #{tokens[@i - 1].start}" if  right == nil
-                left = NotLogicalOperation.new(right)
-            elsif has(:bnot)
-                advance
-                right = level12
-                raise "Missing operand right of bit not at index #{tokens[@i - 1].start}" if  right == nil
-                left = BitNotOperation.new(right)
-            elsif has(:negation)
-                advance
-                right = level12
-                raise "Missing operand right of negation at index #{tokens[@i - 1].start}" if  right == nil
-                left = NegationArithmeticOperation.new(right)
-            else
-                break
-            end
+        if has(:not)
+            advance
+            right = level12
+            left = NotLogicalOperation.new(right)
+        elsif has(:bnot)
+            advance
+            right = level12
+            left = BitNotOperation.new(right)
+        elsif has(:negation)
+            advance
+            right = level12
+            left = NegationArithmeticOperation.new(right)
+        else
+            left = level13
         end
         left
     end
 
     def level13
-        left = level14
-        # func hi (a, b) "hello", "hi" end, call hi (a = 0, b=0)
+        # Check for 'call' BEFORE calling level14
         if has(:call)
             advance
             name = level4
@@ -354,16 +349,19 @@ class Parser
                 advance
                 left = FunctionCall.new(name, params)
             end
+        else
+            left = level14 # note for micah: had to put this in an else otherwise was not working
         end
         left
     end
 
     def level14
-        left = level15
         if has(:return)
             advance
             value = level4
             left = Return.new(value)
+        else
+            left = level15 # note for micah: had to put this in an else otherwise was not working
         end
         left
     end
@@ -391,6 +389,8 @@ class Parser
             value = level5
             raise "Unclosed parathensis at #{@i}" if !has(:rightbracket)
             advance
+        else
+            raise "Unexpected token #{@tokens[@i].type} at index #{@i}"
         end
         value
     end
