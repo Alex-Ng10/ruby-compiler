@@ -160,7 +160,6 @@ class Lexer
                 while has_character
                     capture
                 end
-                # special-case single-letter keywords: t, f, n -> true/false/null
                 if @current_token == "t" || @current_token == "true"
                     emit_token(:true)
                 elsif @current_token == "f" || @current_token == "false"

@@ -305,8 +305,8 @@ class Evaluator
     end
 
     def visit_print(node)
-        puts node.value.visit(self).value   # print raw value of evaluated expression
-        return NullPrimitive.new            # printing returns null to the language
+        puts node.value.visit(self).value   
+        return NullPrimitive.new            
     end
 
     def visit_block(block)
@@ -318,7 +318,6 @@ class Evaluator
             block.array.each do |line|
                 last = line.visit(self)
             end
-            # If last is a node, extract its .value, otherwise it's already a raw value
             result = last.respond_to?(:visit) ? last.value : last
             return result
         end
@@ -430,13 +429,9 @@ class Evaluator
             params_def = func_def[:parameters]
             args_val = node.parameters
             
-            # 1. Create a NEW Runtime for the function (Scope Isolation)
             func_runtime = Runtime.new
-            # Copy existing functions so we can call them recursively
             func_runtime.functions.merge!(runtime.functions)
             
-            # 2. Bind parameters in the NEW runtime
-            # We evaluate arguments in the CURRENT scope (self), but store them in the NEW scope
             params_def.each_with_index do |param_var, index|
                 if index < args_val.length
                     val = args_val[index].visit(self) # Evaluate arg
@@ -444,7 +439,6 @@ class Evaluator
                 end
             end
             
-            # 3. Execute body using a NEW Evaluator attached to the function runtime
             func_evaluator = Evaluator.new(func_runtime)
             
             result = catch(:result) do
