@@ -247,54 +247,49 @@ ruby test.rb
 ## User Interface
 
 ### Editor / Input Interface
-
-Screenshots of the code editor and input handling:
 - Main editor window with syntax highlighting
 - Code input panel
 - File selection and loading
 
+[!](https://github.com/user-attachments/assets/bad5140e-b4f0-434b-bea5-6b6911dc34bb)
+
 ---
 
 ### Output Display
-
-Screenshots showing compilation results:
 - Compiled output window
 - Program execution results
 - Variable state display
 
+[!](https://github.com/user-attachments/assets/826e6d6b-23d5-463c-893f-98da71c1c07c)
+
 ---
 
 ### REPL / Interactive Mode
-
-![Ruby Compiler Demo](https://github.com/user-attachments/assets/779cb786-ce1c-4dde-b5e1-2fb44bb3f3e6)
-
 **Interactive shell features:**
 - Live command input and execution
 - Incremental evaluation
 - Session history
+  
+[!](https://github.com/user-attachments/assets/779cb786-ce1c-4dde-b5e1-2fb44bb3f3e6)
 
 ---
 
 ### Error Handling & Diagnostics
-
-![image](https://github.com/user-attachments/assets/c8e04353-bdd3-4212-b38d-584ff1be7f1e)
-
 - Syntax error displays
 - Runtime error messages
 - Error location highlighting
 - Debug information output
+
+[!](https://github.com/user-attachments/assets/cbbc1f1f-1a63-45b2-a9b9-1adbe0611d90)
 
 ---
 
 
 ## Team & Contributors
 
-This project was developed collaboratively to improve team working skills and deepen understanding of Ruby and compiler design.
+This project was developed collaboratively with [Micah Bjorkgren](https://github.com/bjorkgmd) to improve team working skills and deepen understanding of Ruby and compiler design.
 
 ---
 
-## License
-
-[Your License Here]
 
 
